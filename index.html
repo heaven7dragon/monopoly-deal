@@ -340,6 +340,13 @@ button{font-family:inherit;color:inherit}
 .swp b{position:absolute;right:.55rem;top:.4rem;font-family:var(--fd);font-weight:var(--fw);color:var(--ac);font-size:1.25rem}
 .prevrow{display:flex;gap:.55rem;overflow-x:auto;padding:1rem .2rem .6rem;scrollbar-width:none}
 .set-note{font-size:.95rem;color:var(--dim);line-height:1.5;margin-top:.5rem}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.5rem}
+.stat-tile{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:1rem;text-align:center}
+.stat-n{font-size:2rem;font-weight:800;line-height:1.1}
+.stat-l{font-size:.85rem;color:var(--dim);margin-top:.25rem}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--bd);font-size:.95rem}
+.stat-row:last-child{border-bottom:none}
+.stat-row span:last-child{font-weight:700;color:var(--ac)}
 
 /* ═══════════════ LANDSCAPE ═══════════════ */
 @media (orientation:landscape){
@@ -397,11 +404,20 @@ button{font-family:inherit;color:inherit}
         <div class="aib" id="ai3">3 AI<br><span style="font-size:.8rem;opacity:.7">4 players</span></div>
       </div>
     </div>
+    <div class="aip">
+      <h3>Difficulty</h3>
+      <div class="aio">
+        <div class="aib" id="dif-easy">&#128522; Easy<br><span style="font-size:.8rem;opacity:.7">Random plays</span></div>
+        <div class="aib on" id="dif-med">&#128512; Medium<br><span style="font-size:.8rem;opacity:.7">Smart AI</span></div>
+        <div class="aib" id="dif-hard">&#128520; Hard<br><span style="font-size:.8rem;opacity:.7">Ruthless AI</span></div>
+      </div>
+    </div>
     <div class="sw">
       <button class="btn-g" id="btn-deal">DEAL CARDS</button>
       <button class="btn-o" id="btn-rs">&#128203; Full Rules</button>
       <button class="btn-o" id="btn-gs">&#128218; Card Glossary</button>
       <button class="btn-o" id="btn-set">&#9881;&#65039; Settings &amp; Style</button>
+      <button class="btn-o" id="btn-stats">&#127942; Stats &amp; Records</button>
     </div>
     <div class="qr">
       <h3>Quick Rules</h3>
@@ -612,6 +628,39 @@ button{font-family:inherit;color:inherit}
   </div>
 </div>
 
+<!-- STATS -->
+<div id="pg-stats" class="pg">
+  <div class="phd"><h2>&#127942; STATS &amp; RECORDS</h2><button class="hb" id="statx">&#10005;</button></div>
+  <div class="pb">
+    <div class="rs">
+      <h3>Overall Record</h3>
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="stat-n" id="st-played">0</div><div class="stat-l">Games Played</div></div>
+        <div class="stat-tile"><div class="stat-n" id="st-wins" style="color:var(--grn)">0</div><div class="stat-l">Wins</div></div>
+        <div class="stat-tile"><div class="stat-n" id="st-losses" style="color:var(--red)">0</div><div class="stat-l">Losses</div></div>
+        <div class="stat-tile"><div class="stat-n" id="st-rate">0%</div><div class="stat-l">Win Rate</div></div>
+      </div>
+    </div>
+    <div class="rs">
+      <h3>Streaks</h3>
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="stat-n" id="st-streak" style="color:var(--gold)">0</div><div class="stat-l">Current Streak</div></div>
+        <div class="stat-tile"><div class="stat-n" id="st-best" style="color:var(--gold)">0</div><div class="stat-l">Best Streak</div></div>
+      </div>
+    </div>
+    <div class="rs">
+      <h3>By Mode</h3>
+      <div class="stat-row"><span>Classic — Wins</span><span id="st-cw">0</span></div>
+      <div class="stat-row"><span>Classic — Played</span><span id="st-cp">0</span></div>
+      <div class="stat-row"><span>No Mercy — Wins</span><span id="st-nw">0</span></div>
+      <div class="stat-row"><span>No Mercy — Played</span><span id="st-np">0</span></div>
+    </div>
+    <div class="rs">
+      <button class="btn-o" id="btn-reset-stats" style="width:100%;color:var(--red);border-color:var(--red)">&#128465; Reset All Stats</button>
+    </div>
+  </div>
+</div>
+
 <!-- DEBT CHIP — give hand card to creditor -->
 <div class="jov" id="dcov" style="display:none">
   <div class="jbox" style="border-color:#f59e0b">
@@ -623,6 +672,7 @@ button{font-family:inherit;color:inherit}
 
 <!-- WIN -->
 <div class="wov" id="wov">
+  <button class="hb" id="wov-close" style="position:absolute;top:1rem;right:1rem;font-size:1.4rem" title="Close &amp; review board">&#10005;</button>
   <div class="wi" id="wi">&#127942;</div>
   <div class="wt" id="wt">YOU WIN!</div>
   <div class="ws" id="ws">You collected 3 complete sets!</div>
@@ -695,7 +745,36 @@ function shuffle(a) {
   return a;
 }
 
-var G = {}, numAI = 1, gameMode = "classic", _wildSel = null; // _wildSel = {col, idx} of placed wild being moved
+var G = {}, numAI = 1, gameMode = "classic", gameDiff = "med", _wildSel = null; // _wildSel = {col, idx} of placed wild being moved
+
+// ── STATS ─────────────────────────────────────────────────────────────────
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem("mdeal-stats") || "null") || {played:0,wins:0,losses:0,streak:0,best:0,cPlayed:0,cWins:0,nmPlayed:0,nmWins:0}; }
+  catch(e) { return {played:0,wins:0,losses:0,streak:0,best:0,cPlayed:0,cWins:0,nmPlayed:0,nmWins:0}; }
+}
+function saveStats(s) { try { localStorage.setItem("mdeal-stats", JSON.stringify(s)); } catch(e) {} }
+function recordResult(won) {
+  var s = loadStats();
+  s.played++; s.wins += won ? 1 : 0; s.losses += won ? 0 : 1;
+  s.streak = won ? s.streak + 1 : 0;
+  if (s.streak > s.best) s.best = s.streak;
+  if (G.mode === "nomercy") { s.nmPlayed++; if (won) s.nmWins++; }
+  else { s.cPlayed++; if (won) s.cWins++; }
+  saveStats(s);
+}
+function renderStats() {
+  var s = loadStats();
+  ge("st-played").textContent = s.played;
+  ge("st-wins").textContent   = s.wins;
+  ge("st-losses").textContent = s.losses;
+  ge("st-rate").textContent   = s.played ? Math.round(s.wins / s.played * 100) + "%" : "0%";
+  ge("st-streak").textContent = s.streak;
+  ge("st-best").textContent   = s.best;
+  ge("st-cw").textContent     = s.cWins;
+  ge("st-cp").textContent     = s.cPlayed;
+  ge("st-nw").textContent     = s.nmWins;
+  ge("st-np").textContent     = s.nmPlayed;
+}
 
 function mkP(name, human) { return {name:name,human:human,hand:[],bank:0,props:{},houses:{},hotels:{},debtTo:null}; }
 // debtTo = player object this player owes a chip to (null = no chip)
@@ -1413,7 +1492,8 @@ function jsnCounter(onCancel, onCounter) {
 function jsnAI(target, msg, accept, decline) {
   var j = null;
   for (var i = 0; i < target.hand.length; i++) if (target.hand[i].name === "Just Say No") { j = target.hand[i]; break; }
-  if (j && Math.random() < 0.55) {
+  var jsnChance = gameDiff === "hard" ? 0.85 : gameDiff === "easy" ? 0.25 : 0.55;
+  if (j && Math.random() < jsnChance) {
     // AI plays JSN — remove it from their hand
     var k = [];
     for (var ki = 0; ki < target.hand.length; ki++) if (target.hand[ki].id !== j.id) k.push(target.hand[ki]);
@@ -1527,6 +1607,28 @@ function aiBestCol(actor, card) {
 
 function aiBest(actor) {
   var h = actor.hand, oth = others(actor), i, j;
+
+  // EASY: 40% chance to just play a random card
+  if (gameDiff === "easy" && Math.random() < 0.4) {
+    var picks = [];
+    for (i = 0; i < h.length; i++) picks.push(h[i]);
+    return picks.length ? picks[Math.floor(Math.random() * picks.length)] : null;
+  }
+
+  // HARD: prioritise targeting the player closest to winning
+  var threat = null;
+  if (gameDiff === "hard") {
+    var maxSets = 0;
+    for (j = 0; j < oth.length; j++) { var ns = allSets(oth[j]); if (ns.length > maxSets) { maxSets = ns.length; threat = oth[j]; } }
+    // Hard: always play Deal Breaker on the threat if possible
+    if (threat && maxSets > 0) {
+      for (i = 0; i < h.length; i++) if (h[i].name === "Deal Breaker" && allSets(threat).length) return h[i];
+      for (i = 0; i < h.length; i++) if (h[i].name === "Sly Deal" && stealable(threat).length) return h[i];
+    }
+    // Hard: use JSN aggressively — handled elsewhere; always charge rent
+    for (i = 0; i < h.length; i++) if (h[i].t === "rent") { var rksH = h[i].isWild ? Object.keys(actor.props) : h[i].cols; for (j = 0; j < rksH.length; j++) if (actor.props[rksH[j]] && actor.props[rksH[j]].length) return h[i]; }
+  }
+
   for (i = 0; i < h.length; i++) if (h[i].t === "prop" && pc(actor, h[i].col) + 1 >= COLS[h[i].col].need) return h[i];
   for (i = 0; i < h.length; i++) if (h[i].name === "Deal Breaker") { for (j = 0; j < oth.length; j++) if (allSets(oth[j]).length) return h[i]; }
   for (i = 0; i < h.length; i++) if (h[i].t === "rent") { var rks = h[i].isWild ? Object.keys(actor.props) : h[i].cols; for (j = 0; j < rks.length; j++) if (actor.props[rks[j]] && actor.props[rks[j]].length) return h[i]; }
@@ -1539,6 +1641,12 @@ function aiBest(actor) {
     }
   }
   for (i = 0; i < h.length; i++) if (h[i].name === "Sly Deal") { for (j = 0; j < oth.length; j++) if (stealable(oth[j]).length) return h[i]; }
+  // Easy: skip aggressive action cards sometimes
+  if (gameDiff === "easy" && Math.random() < 0.5) {
+    for (i = 0; i < h.length; i++) if (h[i].t === "prop" || h[i].t === "wild") return h[i];
+    for (i = 0; i < h.length; i++) if (h[i].t === "money") return h[i];
+    return null;
+  }
   for (i = 0; i < h.length; i++) if (h[i].name === "Pass Go" && actor.hand.length < 4) return h[i];
   for (i = 0; i < h.length; i++) if (h[i].t === "prop" || h[i].t === "wild") return h[i];
   for (i = 0; i < h.length; i++) if (h[i].name === "Its My Birthday" || h[i].name === "Debt Collector") return h[i];
@@ -1551,9 +1659,11 @@ function aiBest(actor) {
 function checkWin(p) {
   if (allSets(p).length >= 3) {
     G.phase = "over";
-    ge("wi").innerHTML  = (p === me()) ? "&#127942;" : "&#128542;";
-    ge("wt").textContent = (p === me()) ? "YOU WIN!" : p.name + " WINS!";
-    ge("ws").textContent = (p === me()) ? "You collected 3 complete sets! Well played!" : p.name + " collected 3 sets first. Better luck next time!";
+    var playerWon = (p === me());
+    recordResult(playerWon);
+    ge("wi").innerHTML  = playerWon ? "&#127942;" : "&#128542;";
+    ge("wt").textContent = playerWon ? "YOU WIN!" : p.name + " WINS!";
+    ge("ws").textContent = playerWon ? "You collected 3 complete sets! Well played!" : p.name + " collected 3 sets first. Better luck next time!";
     ge("wov").classList.add("on"); return true;
   }
   return false;
@@ -1740,6 +1850,20 @@ ge("ai3").addEventListener("click", function() { numAI = 3; ge("ai3").classList.
 ge("btn-deal").addEventListener("click", startGame);
 ge("btn-rs").addEventListener("click", openRules);
 ge("btn-gs").addEventListener("click", openGloss);
+ge("btn-stats").addEventListener("click", function() { _fromPage = "pg-start"; renderStats(); goTo("pg-stats"); });
+ge("statx").addEventListener("click", function() { goTo("pg-start"); });
+ge("btn-reset-stats").addEventListener("click", function() {
+  if (confirm("Reset all stats? This cannot be undone.")) {
+    try { localStorage.removeItem("mdeal-stats"); } catch(e) {}
+    renderStats();
+    toast("Stats reset!");
+  }
+});
+
+// Difficulty buttons
+ge("dif-easy").addEventListener("click", function() { gameDiff="easy"; ge("dif-easy").classList.add("on"); ge("dif-med").classList.remove("on"); ge("dif-hard").classList.remove("on"); });
+ge("dif-med").addEventListener("click",  function() { gameDiff="med";  ge("dif-med").classList.add("on");  ge("dif-easy").classList.remove("on"); ge("dif-hard").classList.remove("on"); });
+ge("dif-hard").addEventListener("click", function() { gameDiff="hard"; ge("dif-hard").classList.add("on"); ge("dif-easy").classList.remove("on"); ge("dif-med").classList.remove("on"); });
 ge("gbg").addEventListener("click", openGloss);
 ge("gbr").addEventListener("click", openRules);
 ge("gbh").addEventListener("click", function() { goTo("pg-start"); });
@@ -1755,6 +1879,7 @@ ge("jy").addEventListener("click", jsnUse);
 ge("jn").addEventListener("click", jsnSkip);
 ge("btn-again").addEventListener("click", startGame);
 ge("btn-menu").addEventListener("click", function() { goTo("pg-start"); });
+ge("wov-close").addEventListener("click", function() { ge("wov").classList.remove("on"); });
 ge("modal").addEventListener("click", function(e) { if (e.target === ge("modal")) closeM(); });
 ge("gt-a").addEventListener("click", function() { loadGloss("a"); resetGTabs("gt-a"); });
 ge("gt-p").addEventListener("click", function() { loadGloss("p"); resetGTabs("gt-p"); });
