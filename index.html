@@ -5,791 +5,1513 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0e18">
 <title>Monopoly Deal</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0c0e18;--s1:#161927;--s2:#1e2235;--bd:#282d48;
-  --tx:#e8eaf6;--dim:#6b738f;--ac:#f5c518;--red:#c94040;--grn:#2d9e6b;
-  --fd:"Bebas Neue",cursive;--fb:"DM Sans",sans-serif;
+  --tx:#e8eaf6;--dim:#6b738f;--ac:#f5c518;--grn:#22c55e;--red:#ef4444;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--tx);font-family:var(--fb);height:100dvh;overflow:hidden;position:fixed;width:100%;display:flex;flex-direction:column}
-.scr{display:none;flex-direction:column;height:100dvh;overflow:hidden}
-.scr.on{display:flex}
-
-/* ── START ── */
-#pg-start{align-items:center;justify-content:center;gap:16px;padding:24px 20px;
-  background:radial-gradient(ellipse at 50% 15%,#1a2050,#0c0e18 60%)}
-.logo h1{font-family:var(--fd);font-size:52px;letter-spacing:4px;color:var(--ac);
-  text-shadow:0 0 40px rgba(245,197,24,.4);line-height:1;text-align:center}
-.logo p{color:var(--dim);font-size:11px;letter-spacing:3px;text-transform:uppercase;text-align:center;margin-top:4px}
-.fan{display:flex;justify-content:center;height:82px;position:relative;width:100%}
-.fc{position:absolute;width:54px;height:76px;border-radius:8px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:2px;box-shadow:0 10px 24px rgba(0,0,0,.6);
-  border:2px solid rgba(255,255,255,.15);font-size:20px}
-.fc span{font-size:7.5px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.5px}
-.fc:nth-child(1){transform:rotate(-18deg) translateX(-48px);background:linear-gradient(135deg,#8B5E3C,#a07040)}
-.fc:nth-child(2){transform:rotate(-6deg) translateX(-16px);background:linear-gradient(135deg,#1a1d3a,#2a2d50);z-index:2}
-.fc:nth-child(3){transform:rotate(6deg) translateX(16px);background:linear-gradient(135deg,#1848D8,#2a5af0)}
-.fc:nth-child(4){transform:rotate(18deg) translateX(48px);background:linear-gradient(135deg,#30A850,#3cc060)}
-.start-wrap{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
-.btn-main{background:var(--ac);color:#111;border:none;border-radius:14px;padding:15px;
-  font-family:var(--fd);font-size:24px;letter-spacing:2px;cursor:pointer;width:100%;
-  box-shadow:0 4px 20px rgba(245,197,24,.35)}
-.btn-main:active{transform:scale(.97)}
-.btn-out{background:var(--s2);color:var(--tx);border:2px solid var(--bd);border-radius:14px;
-  padding:12px;font-weight:600;font-size:14px;cursor:pointer;text-align:center;width:100%}
-.btn-out:active{transform:scale(.97)}
-.qr{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;width:100%;max-width:300px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{background:var(--bg);color:var(--tx);font-family:"DM Sans",sans-serif;height:100dvh;overflow:hidden;position:fixed;width:100%}
+.pg{display:none;position:absolute;inset:0;flex-direction:column;overflow:hidden}
+.pg.on{display:flex}
+/* START */
+#pg-start{background:radial-gradient(ellipse at 50% 10%,#1e2560,#0c0e18 65%);align-items:center;justify-content:center;gap:14px;padding:20px;overflow-y:auto}
+.logo h1{font-family:"Bebas Neue",cursive;font-size:52px;letter-spacing:4px;color:var(--ac);text-shadow:0 0 50px rgba(245,197,24,.5);line-height:1;text-align:center}
+.logo p{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);text-align:center;margin-top:4px}
+.fan{height:86px;position:relative;width:216px}
+.fc{position:absolute;width:54px;height:78px;border-radius:8px;border:2px solid rgba(255,255,255,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:0 12px 30px rgba(0,0,0,.6)}
+.fc-i{font-size:22px}.fc-l{font-size:7.5px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.5px}
+.fc:nth-child(1){transform:rotate(-20deg) translateX(8px);background:linear-gradient(135deg,#8B5E3C,#b07848)}
+.fc:nth-child(2){transform:rotate(-7deg) translateX(48px);background:linear-gradient(135deg,#14173a,#22254a);z-index:1}
+.fc:nth-child(3){transform:rotate(6deg) translateX(88px);background:linear-gradient(135deg,#1848D8,#2a5cf0);z-index:2}
+.fc:nth-child(4){transform:rotate(19deg) translateX(128px);background:linear-gradient(135deg,#30A850,#3cbe60);z-index:1}
+.sw{display:flex;flex-direction:column;gap:10px;width:100%;max-width:306px}
+.btn-g{background:var(--ac);color:#111;border:none;border-radius:14px;padding:15px;font-family:"Bebas Neue",cursive;font-size:25px;letter-spacing:2px;cursor:pointer;width:100%;box-shadow:0 4px 24px rgba(245,197,24,.4)}
+.btn-g:active{transform:scale(.96)}
+.btn-o{background:var(--s2);color:var(--tx);border:2px solid var(--bd);border-radius:14px;padding:12px;font-weight:600;font-size:14px;cursor:pointer;width:100%}
+.btn-o:active{transform:scale(.96)}
+.aip{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:13px;width:100%;max-width:306px}
+.aip h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.aio{display:flex;gap:8px}
+.aib{flex:1;min-width:0;padding:10px 4px;border-radius:10px;border:2px solid var(--bd);background:var(--s2);color:var(--dim);font-weight:700;font-size:12px;cursor:pointer;text-align:center;line-height:1.4;word-break:break-word}
+.aib.on{border-color:var(--ac);color:var(--ac);background:rgba(245,197,24,.08)}
+.aib.on-nm{border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,.08)}
+.qr{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:13px;width:100%;max-width:306px}
 .qr h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
-.qr li{font-size:12px;color:var(--dim);margin-bottom:5px;line-height:1.4;list-style:none}
-
-/* player count picker */
-.pc-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;width:100%;max-width:300px}
-.pc-wrap h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
-.pc-opts{display:flex;gap:8px}
-.pc-btn{flex:1;padding:10px 4px;border-radius:10px;border:2px solid var(--bd);background:var(--s2);
-  color:var(--dim);font-weight:700;font-size:13px;cursor:pointer;text-align:center;transition:all .2s}
-.pc-btn.sel{border-color:var(--ac);color:var(--ac);background:rgba(245,197,24,.1)}
-
-/* ── GAME ── */
+.qr ul{list-style:none}
+.qr li{font-size:12px;color:var(--dim);margin-bottom:5px;line-height:1.4}
+/* GAME */
 #pg-game{background:var(--bg)}
-.gh{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;
-  background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0}
-.gh-t{font-family:var(--fd);font-size:20px;color:var(--ac);letter-spacing:2px}
-.hbs{display:flex;gap:7px}
-.hb{background:var(--s2);border:1px solid var(--bd);color:var(--tx);border-radius:9px;
-  padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer}
-
-/* opponents */
-.opp-area{background:#10131f;border-bottom:1px solid var(--bd);padding:7px 12px;flex-shrink:0;max-height:38vh;overflow-y:auto}
-.opp-row{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
-.opp-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-.opp-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);
-  margin-bottom:4px;display:flex;align-items:center;gap:7px}
-.chip{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:1px}
-.chip-ai{background:#5b21b6;color:#ddd6fe}
-.chip-you{background:#065f46;color:#6ee7b7}
-.sr{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.sp{background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:2px 8px;font-size:11px;color:var(--dim)}
-.sp b{color:var(--tx)}
-.ai-hv{display:flex;gap:3px;margin:4px 0}
-.cb{width:22px;height:32px;background:linear-gradient(135deg,#1e2a5e,#2e3d8f);border-radius:4px;border:1px solid #3a4d9e;flex-shrink:0}
-.pr{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.gh{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0}
+.gh-t{font-family:"Bebas Neue",cursive;font-size:20px;color:var(--ac);letter-spacing:2px}
+.ghb{display:flex;gap:7px}
+.hb{background:var(--s2);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer}
+.hb:active{background:var(--bd)}
+.opp-area{background:#0e1120;border-bottom:1px solid var(--bd);padding:7px 12px;flex-shrink:0;overflow-y:auto;max-height:30vh}
+.ob{margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.05)}
+.ob:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.oh{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.on2{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase}
+.badge{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700}
+.bai{background:#4c1d95;color:#c4b5fd}
+.byo{background:#064e3b;color:#6ee7b7}
+.osr{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+.st{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--dim)}
+.st b{color:var(--tx)}
+.ocv{display:flex;gap:2px;flex-wrap:wrap;margin-bottom:3px}
+.cb{width:19px;height:28px;background:linear-gradient(135deg,#1e2a6e,#2e3d9f);border-radius:3px;border:1px solid #3a4dae;display:inline-block}
+.pr{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:1px 0}
 .pr::-webkit-scrollbar{display:none}
-.pset{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
-.pset-l{font-size:7.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);text-align:center}
-.mp{width:50px;height:34px;border-radius:4px;display:flex;align-items:center;justify-content:center;
-  font-size:7px;font-weight:700;color:white;text-align:center;padding:2px;line-height:1.2;
-  border:1.5px solid rgba(255,255,255,.2);position:relative;overflow:hidden}
+.ps{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.pl{font-size:7px;text-transform:uppercase;color:var(--dim);text-align:center;letter-spacing:.5px}
+.mp{width:46px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;text-align:center;padding:2px;line-height:1.2;border:1.5px solid rgba(255,255,255,.2);position:relative;overflow:hidden}
 .mp.done{box-shadow:0 0 0 2px gold}
-.mp .ms{position:absolute;top:-3px;right:-1px;font-size:9px}
-.mp .mh{position:absolute;bottom:0;right:1px;font-size:8px}
-
-/* table / draw area */
-.table-area{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;
-  background:#0d1020;border-bottom:1px solid var(--bd);flex-shrink:0}
-.draw-pile{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
-.draw-pile-stack{position:relative;width:52px;height:74px}
-.draw-card{position:absolute;width:52px;height:74px;border-radius:7px;
-  background:linear-gradient(135deg,#1e2a5e,#2e3d8f);border:2px solid #3a4d9e;
-  box-shadow:0 4px 12px rgba(0,0,0,.5)}
-.draw-card:nth-child(1){transform:rotate(-3deg) translate(-2px,2px)}
-.draw-card:nth-child(2){transform:rotate(1deg) translate(1px,1px)}
-.draw-card:nth-child(3){transform:rotate(0deg)}
-.draw-pile-label{font-size:10px;font-weight:700;color:var(--dim);text-align:center}
-.draw-pile-count{font-size:11px;font-weight:700;color:var(--ac)}
-.draw-pile.can-draw .draw-pile-stack{animation:wobble 1.5s ease-in-out infinite}
-.draw-pile.can-draw .draw-pile-label{color:var(--ac)}
-@keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
-.draw-instruction{font-size:11px;color:var(--ac);font-weight:600;text-align:center;animation:pulse2 1s ease-in-out infinite}
-@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.5}}
-.disc-pile{display:flex;flex-direction:column;align-items:center;gap:4px}
-.disc-pile-vis{width:52px;height:74px;border-radius:7px;border:2px dashed var(--bd);
-  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--dim);text-align:center;line-height:1.3}
-.disc-pile-label{font-size:10px;font-weight:700;color:var(--dim);text-align:center}
-.disc-pile-count{font-size:11px;font-weight:700;color:var(--dim)}
-.turn-info{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px}
-.ti-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
-.ti-draws{display:flex;gap:4px}
-.draw-dot{width:12px;height:12px;border-radius:50%;background:var(--bd);transition:background .3s}
-.draw-dot.drawn{background:var(--ac)}
-.draw-dot.needed{background:var(--grn);animation:pulse2 1s ease-in-out infinite}
-.plays-row{display:flex;gap:4px;align-items:center}
-.pip{width:10px;height:10px;border-radius:50%;background:var(--bd);transition:background .3s}
-.pip.used{background:#ef4444}
-.pip.free{background:#22c55e}
-
-/* player zone */
-.pzone{border-top:1px solid var(--bd);background:#10131f;flex-shrink:0}
-.pi{display:flex;align-items:center;justify-content:space-between;padding:5px 12px;border-bottom:1px solid var(--bd)}
-.disc-bar{background:#7f1d1d;color:#fca5a5;text-align:center;padding:6px 12px;font-size:12px;font-weight:700;display:none}
-.disc-bar.on{display:block}
+.tbl{display:flex;align-items:center;padding:7px 12px;background:#09090f;border-bottom:1px solid var(--bd);flex-shrink:0;gap:8px}
+.dp{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;flex-shrink:0}
+.dps{position:relative;width:44px;height:64px}
+.dc{position:absolute;width:44px;height:64px;border-radius:6px;background:linear-gradient(135deg,#1e2a6e,#2e3d9f);border:2px solid #3a4dae}
+.dc:nth-child(1){transform:rotate(-3deg) translate(-2px,2px)}
+.dc:nth-child(2){transform:rotate(1deg) translate(1px,1px)}
+.dc:nth-child(3){transform:rotate(0)}
+.dl{font-size:9px;font-weight:700;color:var(--dim);text-align:center}
+.dc2{font-size:11px;font-weight:700;color:var(--ac)}
+.dp.pulse .dps{animation:pw 1.3s ease-in-out infinite}
+@keyframes pw{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.dp.pulse .dl{color:var(--ac)}
+.ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.tin{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.tdd{display:flex;gap:5px}
+.dd{width:12px;height:12px;border-radius:50%;background:var(--bd);transition:background .3s}
+.dd.done{background:var(--ac)}
+.dd.next{background:var(--grn);animation:bk 1s ease-in-out infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.35}}
+.tsb{font-size:10px;color:var(--dim);text-align:center}
+.prow{display:flex;gap:4px;align-items:center;margin-top:3px}
+.pd{width:10px;height:10px;border-radius:50%;background:var(--bd)}
+.pd.used{background:var(--red)}.pd.free{background:var(--grn)}
+.dsc{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+.dst{width:44px;height:64px;border-radius:6px;border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--dim);text-align:center;padding:3px}
+.dsl{font-size:9px;font-weight:700;color:var(--dim)}.dsc2{font-size:11px;font-weight:700;color:var(--dim)}
+.yz{border-top:1px solid var(--bd);background:#0e1120;flex-shrink:0}
+.yb{display:flex;align-items:center;justify-content:space-between;padding:5px 12px;border-bottom:1px solid var(--bd)}
+.yl{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.dal{background:#7f1d1d;color:#fca5a5;text-align:center;padding:6px 12px;font-size:12px;font-weight:700;display:none;flex-shrink:0}
+.dal.on{display:block}
 .hand{padding:7px 12px 10px;overflow-x:auto;scrollbar-width:none;display:flex;gap:7px;min-height:108px;align-items:flex-end}
 .hand::-webkit-scrollbar{display:none}
-
 /* CARDS */
-.card{width:68px;height:98px;border-radius:9px;border:2px solid var(--bd);display:flex;flex-direction:column;
-  cursor:pointer;position:relative;flex-shrink:0;overflow:hidden;
-  transition:transform .2s,box-shadow .2s,border-color .2s;user-select:none}
-.card.sel{transform:translateY(-14px);border-color:var(--ac);box-shadow:0 10px 28px rgba(245,197,24,.45)}
-.card.dm{outline:3px dashed #ef4444;outline-offset:-3px}
-.card:active{opacity:.85}
-.ch{height:20px;display:flex;align-items:center;justify-content:space-between;padding:0 5px;flex-shrink:0;font-size:8px;font-weight:700}
-.cb2{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;gap:2px}
-.cf{height:15px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0}
+.card{width:66px;height:96px;border-radius:9px;border:2px solid var(--bd);display:flex;flex-direction:column;cursor:pointer;position:relative;flex-shrink:0;overflow:hidden}
+.card.sel{transform:translateY(-14px);border-color:var(--ac);box-shadow:0 10px 28px rgba(245,197,24,.5)}
+.card.mrk{outline:3px dashed var(--red);outline-offset:-3px}
+.card:active{opacity:.82}
+.ct{height:20px;display:flex;align-items:center;justify-content:space-between;padding:0 5px;font-size:8px;font-weight:700;flex-shrink:0}
+.cm{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;gap:2px}
+.cb2{height:15px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;text-transform:uppercase;flex-shrink:0}
 .ci{font-size:20px;line-height:1}
-.cn{font-size:7.5px;font-weight:700;text-align:center;line-height:1.2;padding:0 2px}
-
-.card.money{background:#0f2d0f}
-.card.money .ch{background:#1a4a1a;color:#6ee7b7}
-.card.money .cf{background:#1a4a1a;color:#6ee7b7}
-.card.money .cb2{background:#0f2d0f}
-.card.action{background:#0f1030}
-.card.action .ch{background:#1a1d48;color:#a5b4fc}
-.card.action .cf{background:#1a1d48;color:#a5b4fc}
-.card.action .cb2{background:#0f1030}
-.card.rent{background:#1a0a2a}
-.card.rent .ch{background:#2d1045;color:#e879f9}
-.card.rent .cf{background:#2d1045;color:#e879f9}
-.card.rent .cb2{background:#1a0a2a}
-
+.cn{font-size:7px;font-weight:700;text-align:center;line-height:1.2;padding:0 2px}
+.card.money{background:#091f0e}.card.money .ct{background:#133018;color:#6ee7b7}.card.money .cb2{background:#133018;color:#6ee7b7}.card.money .cm{background:#091f0e}
+.card.action{background:#080a20}.card.action .ct{background:#10144a;color:#a5b4fc}.card.action .cb2{background:#10144a;color:#a5b4fc}.card.action .cm{background:#080a20}
+.card.rent{background:#10061e}.card.rent .ct{background:#1e0a38;color:#e879f9}.card.rent .cb2{background:#1e0a38;color:#e879f9}.card.rent .cm{background:#10061e}
 /* action bar */
-.abar{display:flex;gap:7px;padding:7px 12px 11px;border-top:1px solid var(--bd);flex-shrink:0}
-.abar button{flex:1;padding:11px 4px;border-radius:11px;border:none;font-weight:700;font-size:12px;cursor:pointer}
-.abar button:active{transform:scale(.97)}
-.abar button:disabled{opacity:.3;cursor:not-allowed}
-.b-play{background:#065f46;color:#6ee7b7}
-.b-bank{background:#1e3a5f;color:#93c5fd}
-.b-end{background:var(--s2);color:var(--dim);border:1px solid var(--bd)!important}
-.b-disc{background:#7f1d1d;color:#fca5a5;display:none}
-
-/* RULES */
+.ab{display:flex;gap:7px;padding:7px 12px 11px;border-top:1px solid var(--bd);flex-shrink:0}
+.ab button{flex:1;padding:11px 4px;border-radius:11px;border:none;font-weight:700;font-size:12px;cursor:pointer}
+.ab button:active{transform:scale(.96)}
+.ab button:disabled{opacity:.3;cursor:not-allowed}
+.abp{background:#065f46;color:#6ee7b7}
+.abb{background:#1e3a5f;color:#93c5fd}
+.abe{background:var(--s2);color:var(--dim);border:1px solid var(--bd)!important}
+.abd{background:#7f1d1d;color:#fca5a5;display:none}
+/* RULES & GLOSS */
 #pg-rules,#pg-gloss{background:var(--bg)}
-.sh{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;
-  background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0}
-.sh h2{font-family:var(--fd);font-size:22px;color:var(--ac);letter-spacing:2px}
-.sbody{flex:1;overflow-y:auto;padding:14px 16px}
+.phd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0}
+.phd h2{font-family:"Bebas Neue",cursive;font-size:22px;color:var(--ac);letter-spacing:2px}
+.pb{flex:1;overflow-y:auto;padding:14px 16px}
 .rs{margin-bottom:16px}
-.rs h3{font-family:var(--fd);font-size:17px;color:var(--ac);letter-spacing:1px;margin-bottom:7px}
+.rs h3{font-family:"Bebas Neue",cursive;font-size:17px;color:var(--ac);letter-spacing:1px;margin-bottom:7px}
 .rc{background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:12px;margin-bottom:7px}
 .rc h4{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px}
 .rc p{font-size:12px;color:var(--dim);line-height:1.6}
-.rc .rt{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);border-radius:8px;padding:7px 9px;font-size:11px;color:var(--ac);margin-top:7px}
-.fs{display:flex;gap:11px;align-items:flex-start;padding:9px 13px;background:var(--s1);
-  border-left:3px solid var(--ac);border-radius:0 10px 10px 0;margin-bottom:6px}
-.fn{font-family:var(--fd);font-size:22px;color:var(--ac);line-height:1;flex-shrink:0;width:20px}
-.ft h4{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:2px}
-.ft p{font-size:12px;color:var(--dim);line-height:1.5}
+.rtip{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);border-radius:8px;padding:7px 9px;font-size:11px;color:var(--ac);margin-top:7px}
+.rst{display:flex;gap:11px;padding:9px 13px;background:var(--s1);border-left:3px solid var(--ac);border-radius:0 10px 10px 0;margin-bottom:6px}
+.rn{font-family:"Bebas Neue",cursive;font-size:24px;color:var(--ac);line-height:1;flex-shrink:0;width:22px}
+.rt h4{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:2px}
+.rt p{font-size:12px;color:var(--dim);line-height:1.5}
 .rtbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:7px}
-.rtbl th{padding:6px 7px;text-align:left;color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--bd)}
+.rtbl th{padding:6px 7px;text-align:left;color:var(--dim);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--bd)}
 .rtbl td{padding:6px 7px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--tx)}
-.cdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
-
-/* GLOSS */
-.gtabs{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0}
-.gtabs::-webkit-scrollbar{display:none}
-.gtab{padding:10px 15px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;
-  white-space:nowrap;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none}
-.gtab.on{color:var(--ac);border-bottom-color:var(--ac)}
-.gc2{flex:1;overflow-y:auto;padding:13px 15px;display:flex;flex-direction:column;gap:9px}
-.gcard{background:var(--s1);border:1px solid var(--bd);border-radius:11px;overflow:hidden}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.gts{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0}
+.gts::-webkit-scrollbar{display:none}
+.gt{padding:10px 14px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none}
+.gt.on{color:var(--ac);border-bottom-color:var(--ac)}
+.gb{flex:1;overflow-y:auto;padding:12px 15px;display:flex;flex-direction:column;gap:9px}
+.gc{background:var(--s1);border:1px solid var(--bd);border-radius:11px;overflow:hidden}
 .gch{display:flex;align-items:center;gap:11px;padding:11px 13px}
-.gico{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
-.gch h3{font-size:14px;font-weight:700}
+.gic{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.gch h3{font-size:14px;font-weight:700;margin-bottom:2px}
 .gch span{font-size:11px;color:var(--dim)}
 .gcb{padding:9px 13px 13px;font-size:12px;color:var(--dim);line-height:1.65;border-top:1px solid var(--bd)}
 .gtip{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);border-radius:7px;padding:7px 9px;font-size:11px;color:var(--ac);margin-top:7px}
-.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.pent{border-radius:9px;padding:9px 11px}
-.pent h4{font-size:13px;font-weight:700;color:white;margin-bottom:2px}
-.pent p{font-size:11px;color:rgba(255,255,255,.7);line-height:1.4}
-
+.pgr{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pe{border-radius:9px;padding:9px 11px}
+.pe h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.pe p{font-size:11px;color:rgba(255,255,255,.7);line-height:1.4}
 /* MODAL */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:100;align-items:flex-end;justify-content:center}
-.ov.on{display:flex}
-.sheet{background:var(--s1);border-radius:20px 20px 0 0;padding:17px 17px 38px;width:100%;max-height:75dvh;overflow-y:auto;animation:up .25s ease}
-@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.hdl{width:36px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 13px}
-.stl{font-family:var(--fd);font-size:21px;color:var(--ac);margin-bottom:11px;letter-spacing:1px}
-.mo{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:12px;margin-bottom:7px;cursor:pointer;text-align:left;color:var(--tx);width:100%}
-.mo:active{border-color:var(--ac)}
-.mo h4{font-size:14px;font-weight:700;margin-bottom:2px}
-.mo p{font-size:12px;color:var(--dim);line-height:1.3}
-.mc{width:100%;padding:12px;background:#7f1d1d;color:#fca5a5;border:none;border-radius:11px;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px}
-.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}
-.copt{height:42px;border-radius:9px;border:2px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white}
-.copt:active{border-color:white;transform:scale(.95)}
-
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;align-items:flex-end;justify-content:center}
+.mov.on{display:flex}
+.mbox{background:var(--s1);border-radius:20px 20px 0 0;padding:17px 17px 38px;width:100%;max-height:72dvh;overflow-y:auto;animation:su .24s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhdl{width:36px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 12px}
+.mtit{font-family:"Bebas Neue",cursive;font-size:21px;color:var(--ac);margin-bottom:11px;letter-spacing:1px}
+.mb{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:12px;margin-bottom:7px;cursor:pointer;text-align:left;color:var(--tx);width:100%;display:block}
+.mb:active{border-color:var(--ac)}
+.mb h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.mb p{font-size:12px;color:var(--dim);line-height:1.3}
+.mcx{width:100%;padding:12px;background:#7f1d1d;color:#fca5a5;border:none;border-radius:11px;font-weight:700;font-size:14px;cursor:pointer;margin-top:3px;display:block}
+.cgr{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}
+.cbtn{height:42px;border-radius:9px;border:2px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.cbtn:active{border-color:#fff;transform:scale(.95)}
 /* JSN */
-.jsn-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;
-  flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px}
-.jsn-ov.on{display:flex}
-.jsn-box{background:#1a0a0a;border:2px solid #ef4444;border-radius:18px;padding:22px;width:100%;max-width:320px;text-align:center}
-.jsn-box h2{font-family:var(--fd);font-size:26px;color:#ef4444;letter-spacing:2px;margin-bottom:7px}
-.jsn-box p{color:var(--dim);font-size:13px;line-height:1.5;margin-bottom:14px}
-.jsn-yes{background:#7f1d1d;border:none;color:#fca5a5;padding:13px;border-radius:11px;font-weight:800;font-size:15px;cursor:pointer;width:100%;margin-bottom:7px;animation:pulse3 1s ease-in-out infinite}
-@keyframes pulse3{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 10px rgba(239,68,68,0)}}
-.jsn-no{background:var(--s2);border:1px solid var(--bd);color:var(--dim);padding:11px;border-radius:11px;font-weight:600;font-size:13px;cursor:pointer;width:100%}
-
+.jov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:22px}
+.jov.on{display:flex}
+.jbox{background:#160606;border:2px solid var(--red);border-radius:18px;padding:22px;width:100%;max-width:316px;text-align:center}
+.jbox h2{font-family:"Bebas Neue",cursive;font-size:27px;color:var(--red);letter-spacing:2px;margin-bottom:7px}
+.jbox p{color:var(--dim);font-size:13px;line-height:1.5;margin-bottom:14px}
+.jy{background:#7f1d1d;border:none;color:#fca5a5;padding:13px;border-radius:11px;font-weight:800;font-size:15px;cursor:pointer;width:100%;margin-bottom:7px;display:block;animation:gl 1s ease-in-out infinite}
+@keyframes gl{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}50%{box-shadow:0 0 0 12px rgba(239,68,68,0)}}
+.jn{background:var(--s2);border:1px solid var(--bd);color:var(--dim);padding:11px;border-radius:11px;font-weight:600;font-size:13px;cursor:pointer;width:100%;display:block}
+/* DEBT CHIP */
+.dchip{display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#1c0a00;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;text-align:center;line-height:18px;vertical-align:middle}
 /* WIN */
-.win-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;
-  flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:30px}
-.win-ov.on{display:flex}
-.win-em{font-size:76px}
-.win-t{font-family:var(--fd);font-size:50px;color:var(--ac);letter-spacing:3px}
-.win-s{color:var(--dim);font-size:14px;line-height:1.5}
-.toast{position:fixed;bottom:150px;left:50%;transform:translateX(-50%);background:rgba(20,24,40,.96);
-  color:var(--tx);padding:8px 16px;border-radius:18px;font-size:12px;font-weight:600;
-  border:1px solid var(--bd);z-index:400;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.wov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:30px}
+.wov.on{display:flex}
+.wi{font-size:78px}.wt{font-family:"Bebas Neue",cursive;font-size:50px;color:var(--ac);letter-spacing:3px}
+.ws{color:var(--dim);font-size:14px;line-height:1.6;max-width:280px}
+/* toast */
+.toast{position:fixed;bottom:155px;left:50%;transform:translateX(-50%);background:rgba(16,20,36,.97);color:var(--tx);padding:8px 16px;border-radius:17px;font-size:12px;font-weight:600;border:1px solid var(--bd);z-index:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1}
 </style>
 </head>
 <body>
 
 <!-- START -->
-<div id="pg-start" class="scr on">
+<div id="pg-start" class="pg on">
   <div class="logo"><h1>MONOPOLY<br>DEAL</h1><p>Practice vs AI</p></div>
   <div class="fan">
-    <div class="fc"><span style="font-size:20px">🏠</span><span>PROP</span></div>
-    <div class="fc"><span style="font-size:20px">💸</span><span>RENT</span></div>
-    <div class="fc"><span style="font-size:20px">🚫</span><span>JSN</span></div>
-    <div class="fc"><span style="font-size:20px">💰</span><span>BANK</span></div>
+    <div class="fc"><div class="fc-i">&#127968;</div><div class="fc-l">PROP</div></div>
+    <div class="fc"><div class="fc-i">&#128184;</div><div class="fc-l">RENT</div></div>
+    <div class="fc"><div class="fc-i">&#128683;</div><div class="fc-l">JSN</div></div>
+    <div class="fc"><div class="fc-i">&#128176;</div><div class="fc-l">BANK</div></div>
   </div>
-  <div class="pc-wrap">
-    <h3>Number of AI Opponents</h3>
-    <div class="pc-opts">
-      <div class="pc-btn sel" data-n="1" onclick="setPC(1)">1 AI<br><span style="font-size:10px;opacity:.7">2 players</span></div>
-      <div class="pc-btn" data-n="2" onclick="setPC(2)">2 AI<br><span style="font-size:10px;opacity:.7">3 players</span></div>
-      <div class="pc-btn" data-n="3" onclick="setPC(3)">3 AI<br><span style="font-size:10px;opacity:.7">4 players</span></div>
+  <div class="aip" id="mode-pick">
+    <h3>Game Mode</h3>
+    <div class="aio">
+      <div class="aib on" id="mc">Classic<br><span style="font-size:10px;opacity:.6">110 cards</span></div>
+      <div class="aib" id="mnm">NO MERCY<br><span style="font-size:10px;opacity:.6">120 cards</span></div>
     </div>
   </div>
-  <div class="start-wrap">
-    <button class="btn-main" onclick="startGame()">DEAL CARDS</button>
-    <button class="btn-out" onclick="openRules()">📋 Full Rules</button>
-    <button class="btn-out" onclick="openGloss()">📖 Card Glossary</button>
+  <div class="aip">
+    <h3>Number of AI Opponents</h3>
+    <div class="aio">
+      <div class="aib on" id="ai1">1 AI<br><span style="font-size:10px;opacity:.6">2 players</span></div>
+      <div class="aib" id="ai2">2 AI<br><span style="font-size:10px;opacity:.6">3 players</span></div>
+      <div class="aib" id="ai3">3 AI<br><span style="font-size:10px;opacity:.6">4 players</span></div>
+    </div>
+  </div>
+  <div class="sw">
+    <button class="btn-g" id="btn-deal">DEAL CARDS</button>
+    <button class="btn-o" id="btn-rs">&#128203; Full Rules</button>
+    <button class="btn-o" id="btn-gs">&#128218; Card Glossary</button>
   </div>
   <div class="qr">
     <h3>Quick Rules</h3>
     <ul>
-      <li>🎯 Collect <b>3 complete property sets</b> to win</li>
-      <li>🃏 5 cards dealt at start — tap draw pile for 2 each turn</li>
-      <li>▶ Play up to <b>3 cards</b> — lay prop, bank, or action</li>
-      <li>✋ Max <b>7 cards</b> in hand at end of turn</li>
-      <li>🚫 Just Say No cancels any action (free — not a play)</li>
-      <li>💸 Action &amp; rent cards can be banked for their £ value</li>
+      <li>&#127919; Collect <b>3 complete property sets</b> to win</li>
+      <li>&#127183; Deal 5 cards each &#8212; tap draw pile for 2 per turn</li>
+      <li>&#9654; Play up to <b>3 cards</b> per turn (any combo)</li>
+      <li>&#9995; Max <b>7 cards</b> in hand at end of turn</li>
+      <li>&#128683; Just Say No is FREE &#8212; does not use a play</li>
+      <li>&#127183; Moving a wildcard is FREE &#8212; tap it in your property area</li>
+      <li>&#128176; Money, action AND rent cards can all be banked</li>
+      <li id="qr-nm" style="display:none">&#128480; <b>No Mercy:</b> Debt Chips, Double Rent &amp; Unfair Trade &#8212; see Glossary</li>
     </ul>
   </div>
 </div>
 
 <!-- GAME -->
-<div id="pg-game" class="scr">
+<div id="pg-game" class="pg">
   <div class="gh">
-    <span class="gh-t">DEAL</span>
-    <div class="hbs">
-      <button class="hb" onclick="openGloss()">📖</button>
-      <button class="hb" onclick="openRules()">📋</button>
-      <button class="hb" onclick="goStart()">↩</button>
+    <span class="gh-t">DEAL <span id="nm-badge" style="display:none;font-size:11px;background:#ef4444;color:#fff;border-radius:5px;padding:2px 6px;letter-spacing:1px;vertical-align:middle">NO MERCY</span></span>
+    <div class="ghb">
+      <button class="hb" id="gbg">&#128218;</button>
+      <button class="hb" id="gbr">&#128203;</button>
+      <button class="hb" id="gbh">&#8617;</button>
     </div>
   </div>
-  <div class="opp-area" id="opp-area"></div>
-
-  <!-- Table: draw pile / turn info / discard pile -->
-  <div class="table-area">
-    <div class="draw-pile" id="draw-pile" onclick="playerDraw()">
-      <div class="draw-pile-stack">
-        <div class="draw-card"></div><div class="draw-card"></div><div class="draw-card"></div>
-      </div>
-      <div class="draw-pile-label">DRAW PILE</div>
-      <div class="draw-pile-count" id="draw-count">0</div>
+  <div class="opp-area" id="opp"></div>
+  <div class="tbl">
+    <div class="dp" id="dpile">
+      <div class="dps"><div class="dc"></div><div class="dc"></div><div class="dc"></div></div>
+      <div class="dl">DRAW PILE</div>
+      <div class="dc2" id="dcnt">0</div>
     </div>
-    <div class="turn-info">
-      <div class="ti-label" id="ti-label">YOUR TURN</div>
-      <div class="ti-draws" id="ti-draws">
-        <div class="draw-dot" id="dd1"></div>
-        <div class="draw-dot" id="dd2"></div>
-      </div>
-      <div style="font-size:10px;color:var(--dim);margin-top:2px" id="ti-sub">Tap draw pile</div>
-      <div class="plays-row" style="margin-top:4px">
-        <span style="font-size:10px;color:var(--dim)">Plays:</span>
-        <div class="pip free" id="p1"></div>
-        <div class="pip free" id="p2"></div>
-        <div class="pip free" id="p3"></div>
+    <div class="ti">
+      <div class="tin" id="tin">YOUR TURN</div>
+      <div class="tdd"><div class="dd" id="dd1"></div><div class="dd" id="dd2"></div></div>
+      <div class="tsb" id="tsb">Tap draw pile</div>
+      <div class="prow">
+        <span style="font-size:10px;color:var(--dim);margin-right:3px">Plays:</span>
+        <div class="pd" id="pd1"></div><div class="pd" id="pd2"></div><div class="pd" id="pd3"></div>
       </div>
     </div>
-    <div class="disc-pile">
-      <div class="disc-pile-vis" id="disc-vis">Empty</div>
-      <div class="disc-pile-label">DISCARD</div>
-      <div class="disc-pile-count" id="disc-count">0</div>
+    <div class="dsc">
+      <div class="dst" id="dtop">Empty</div>
+      <div class="dsl">DISCARD</div>
+      <div class="dsc2" id="dscnt">0</div>
     </div>
   </div>
-
-  <div class="disc-bar" id="disc-bar">⚠️ Discard <span id="disc-n">0</span> card(s) — tap to mark, then Discard ✓</div>
-
-  <!-- Player zone -->
-  <div class="pzone">
-    <div class="pi">
-      <div class="opp-lbl" style="margin:0">YOU <span id="you-chip" class="chip chip-you" style="display:none">YOUR TURN</span></div>
-      <div class="sr" style="gap:6px">
-        <div class="sp">Bank: <b id="you-bank">£0M</b></div>
-        <div class="sp">Sets: <b id="you-sets">0/3</b></div>
+  <div class="dal" id="dal">Discard <span id="dn">0</span> card(s) &#8212; tap cards to mark, then confirm</div>
+  <div class="yz">
+    <div class="yb">
+      <div class="yl">YOU <span class="badge byo" id="ybdg" style="display:none">YOUR TURN</span></div>
+      <div class="osr">
+        <div class="st">Bank: <b id="ybk">&#163;0M</b></div>
+        <div class="st">Sets: <b id="yst">0/3</b></div>
       </div>
     </div>
-    <div id="you-props" class="pr" style="padding:4px 12px"></div>
+    <div id="yprops" class="pr" style="padding:4px 12px"></div>
     <div id="hand" class="hand"></div>
-    <div class="abar">
-      <button class="b-play" id="b-play" onclick="playSel()" disabled>▶ Play</button>
-      <button class="b-bank" id="b-bank" onclick="bankSel()" disabled>🏦 Bank</button>
-      <button class="b-end" id="b-end" onclick="endTurn()" disabled>End Turn</button>
-      <button class="b-disc" id="b-disc" onclick="confirmDiscard()">Discard ✓</button>
+    <div class="ab">
+      <button class="abp" id="abp">&#9654; Play</button>
+      <button class="abb" id="abb">&#127968; Bank</button>
+      <button class="abe" id="abe">End Turn</button>
+      <button class="abd" id="abd">Discard &#10003;</button>
+    </div>
+    <div class="ab" id="ab2" style="display:none;padding-top:0">
+      <button class="abp" id="abmw" style="background:#7c3aed;color:#ddd6fe">&#127183; Move Wildcard</button>
     </div>
   </div>
 </div>
 
 <!-- RULES -->
-<div id="pg-rules" class="scr">
-  <div class="sh"><h2>FULL RULES</h2><button class="hb" id="rules-x">✕</button></div>
-  <div class="sbody">
-    <div class="rs"><h3>🎯 Objective</h3>
-      <div class="rc"><h4>Collect 3 complete property sets to win</h4><p>Each colour needs a specific number of cards. Complete 3 different-colour sets and you win instantly.</p></div>
+<div id="pg-rules" class="pg">
+  <div class="phd"><h2>FULL RULES</h2><button class="hb" id="rx">&#10005;</button></div>
+  <div class="pb">
+    <div class="rs"><h3>&#127919; How to Win</h3>
+      <div class="rc"><h4>Collect 3 complete property sets of different colours</h4>
+        <p>Each colour shows how many cards are needed. Be first to complete 3 different-colour sets and you win immediately.</p></div>
     </div>
-    <div class="rs"><h3>🔄 Each Turn</h3>
-      <div class="fs"><div class="fn">1</div><div class="ft"><h4>Tap the Draw Pile — take 2 cards</h4><p>You must draw before playing. If you have zero cards, draw 5 instead. You start the game with 5 cards already dealt to you.</p></div></div>
-      <div class="fs"><div class="fn">2</div><div class="ft"><h4>Play up to 3 cards</h4><p>Lay a property, bank a card (money/action/rent), or play an action. You can skip plays.</p></div></div>
-      <div class="fs"><div class="fn">3</div><div class="ft"><h4>Discard down to 7</h4><p>If you have more than 7 cards at end of turn, discard the excess. You choose which ones.</p></div></div>
+    <div class="rs"><h3>&#127183; Setup</h3>
+      <div class="rc"><h4>Dealing</h4><p>Shuffle and deal 5 cards face down to each player. Place the remaining cards face down as the draw pile.</p></div>
     </div>
-    <div class="rs"><h3>🏦 The Bank</h3>
-      <div class="rc"><h4>What can be banked?</h4><p>Money cards, action cards AND rent cards can all be placed in your bank for their £ value. Each counts as 1 play. Once banked, the card loses its action forever — it becomes pure cash.</p><div class="rt">💡 Rent cards banked = pure cash. Smart when you have no matching properties.</div></div>
-      <div class="rc"><h4>Paying debts</h4><p>Pay from bank first. If not enough, hand over property cards (go to opponent's bank at face value). Cannot pay from hand. No change given if you overpay.</p></div>
+    <div class="rs"><h3>&#128260; Your Turn</h3>
+      <div class="rst"><div class="rn">1</div><div class="rt"><h4>Draw 2 cards</h4><p>Tap the draw pile to take 2 cards. If you have zero cards at the start of your turn, draw 5 instead.</p></div></div>
+      <div class="rst"><div class="rn">2</div><div class="rt"><h4>Play up to 3 cards</h4><p>Any combination: place property, bank a card, or play an action. Each card played counts as 1 play.</p></div></div>
+      <div class="rst"><div class="rn">3</div><div class="rt"><h4>Discard down to 7</h4><p>At end of your turn, if you have more than 7 cards, discard the excess. You choose which ones.</p></div></div>
     </div>
-    <div class="rs"><h3>🏠 Properties</h3>
-      <div class="rc"><h4>Wildcards</h4><p>Two-colour wilds go as either of their 2 colours. The rainbow wild goes as any colour. Both worth £0 — cannot pay debts, but can be stolen. Reassigning costs 1 play.</p></div>
-      <div class="rc"><h4>Houses &amp; Hotels</h4><p>House (+£3M rent) on any complete set except Railroad/Utility. Hotel (+£4M) on top of a house. One of each per set.</p></div>
+    <div class="rs"><h3>&#127968; Bank</h3>
+      <div class="rc"><h4>Wildcard Reassignment</h4><p>Tap a wildcard already on your property area to select it (it glows purple). A purple <b>Move Wildcard</b> button appears &#8212; tap it to pick a new colour. This is <b>FREE</b> and does not use one of your 3 plays. You can flip it any time during your turn.</p></div>
+      <div class="rc"><h4>Building your bank</h4><p>Money, action, AND rent cards can all be banked for their printed value. Once banked, an action/rent card permanently loses its special ability.</p>
+        <div class="rtip">&#128161; Banking an action card takes 1 play but earns you cash permanently.</div></div>
+      <div class="rc"><h4>Paying debts</h4><p>Pay from bank first. If not enough, hand over property cards at face value. No change given. Cannot pay from hand.</p></div>
     </div>
-    <div class="rs"><h3>💸 Rent Table</h3>
+    <div class="rs"><h3>&#128683; Just Say No</h3>
+      <div class="rc"><h4>Cancel any action played against you</h4>
+        <p>Can be used against Deal Breaker, Sly Deal, Force Deal, Debt Collector, Birthday, and Rent. Does NOT count as one of your 3 plays. Can cancel another Just Say No.</p>
+        <div class="rtip">&#128161; Just Say No cancels the Double the Rent card specifically, not the rent card. Game pauses fully so you decide with no time pressure.</div></div>
+    </div>
+    <div class="rs"><h3>&#128184; Rent</h3>
+      <div class="rc"><h4>Houses and Hotels</h4><p>Add to any complete set except Railroad and Utility. House adds &#163;3M, Hotel adds &#163;4M more on top.</p></div>
       <table class="rtbl">
-        <tr><th>Colour</th><th>Need</th><th>Rent (per card count)</th></tr>
-        <tr><td><span class="cdot" style="background:#8B5E3C"></span>Brown</td><td>2</td><td>£1M / £2M</td></tr>
-        <tr><td><span class="cdot" style="background:#5DB8E8"></span>Lt Blue</td><td>3</td><td>£1M / £2M / £3M</td></tr>
-        <tr><td><span class="cdot" style="background:#E055A0"></span>Pink</td><td>3</td><td>£1M / £2M / £4M</td></tr>
-        <tr><td><span class="cdot" style="background:#F08030"></span>Orange</td><td>3</td><td>£1M / £3M / £5M</td></tr>
-        <tr><td><span class="cdot" style="background:#D83030"></span>Red</td><td>3</td><td>£2M / £3M / £6M</td></tr>
-        <tr><td><span class="cdot" style="background:#E8CC30"></span>Yellow</td><td>3</td><td>£2M / £4M / £6M</td></tr>
-        <tr><td><span class="cdot" style="background:#30A850"></span>Green</td><td>3</td><td>£2M / £4M / £7M</td></tr>
-        <tr><td><span class="cdot" style="background:#1848D8"></span>Blue</td><td>2</td><td>£3M / £8M</td></tr>
-        <tr><td><span class="cdot" style="background:#333344"></span>Railroad</td><td>4</td><td>£1M / £2M / £3M / £4M</td></tr>
-        <tr><td><span class="cdot" style="background:#8844BB"></span>Utility</td><td>2</td><td>£1M / £2M</td></tr>
+        <tr><th>Colour</th><th>Cards needed</th><th>Rent values</th></tr>
+        <tr><td><span class="dot" style="background:#8B5E3C"></span>Brown</td><td>2</td><td>&#163;1M / &#163;2M</td></tr>
+        <tr><td><span class="dot" style="background:#5DB8E8"></span>Light Blue</td><td>3</td><td>&#163;1M / &#163;2M / &#163;3M</td></tr>
+        <tr><td><span class="dot" style="background:#E055A0"></span>Pink</td><td>3</td><td>&#163;1M / &#163;2M / &#163;4M</td></tr>
+        <tr><td><span class="dot" style="background:#F08030"></span>Orange</td><td>3</td><td>&#163;1M / &#163;3M / &#163;5M</td></tr>
+        <tr><td><span class="dot" style="background:#D83030"></span>Red</td><td>3</td><td>&#163;2M / &#163;3M / &#163;6M</td></tr>
+        <tr><td><span class="dot" style="background:#E8CC30"></span>Yellow</td><td>3</td><td>&#163;2M / &#163;4M / &#163;6M</td></tr>
+        <tr><td><span class="dot" style="background:#30A850"></span>Green</td><td>3</td><td>&#163;2M / &#163;4M / &#163;7M</td></tr>
+        <tr><td><span class="dot" style="background:#1848D8"></span>Blue</td><td>2</td><td>&#163;3M / &#163;8M</td></tr>
+        <tr><td><span class="dot" style="background:#333344"></span>Railroad</td><td>4</td><td>&#163;1M / &#163;2M / &#163;3M / &#163;4M</td></tr>
+        <tr><td><span class="dot" style="background:#8844BB"></span>Utility</td><td>2</td><td>&#163;1M / &#163;2M</td></tr>
       </table>
-    </div>
-    <div class="rs"><h3>🚫 Just Say No</h3>
-      <div class="rc"><h4>Cancels any action against you</h4><p>Works on Deal Breaker, Sly Deal, Force Deal, Debt Collector, Birthday, Rent. Does NOT use one of your 3 plays. Can cancel another Just Say No.</p><div class="rt">💡 The game fully PAUSES with a popup — you decide, nothing happens automatically.</div></div>
-    </div>
-    <div class="rs"><h3>👥 Players</h3>
-      <div class="rc"><h4>2–5 players (one deck)</h4><p>2 players: fast and strategic. 3–4 players: the sweet spot — best balance of chaos and tactics. 5 players: unpredictable, action cards fly constantly.</p><div class="rt">💡 This app supports 1–3 AI opponents (2–4 players total). Double deck (up to 10) coming later.</div></div>
     </div>
   </div>
 </div>
 
-<!-- GLOSS -->
-<div id="pg-gloss" class="scr">
-  <div class="sh"><h2>GLOSSARY</h2><button class="hb" id="gloss-x">✕</button></div>
-  <div class="gtabs">
-    <button class="gtab on" onclick="switchTab(this,'action')">🎴 Actions</button>
-    <button class="gtab" onclick="switchTab(this,'prop')">🏠 Properties</button>
-    <button class="gtab" onclick="switchTab(this,'wild')">🃏 Wildcards</button>
-    <button class="gtab" onclick="switchTab(this,'money')">💰 Money</button>
-    <button class="gtab" onclick="switchTab(this,'rent')">💸 Rent</button>
+<!-- GLOSSARY -->
+<div id="pg-gloss" class="pg">
+  <div class="phd"><h2>GLOSSARY</h2><button class="hb" id="gx">&#10005;</button></div>
+  <div class="gts">
+    <button class="gt on" id="gt-a">&#127820; Actions</button>
+    <button class="gt" id="gt-p">&#127968; Props</button>
+    <button class="gt" id="gt-w">&#127183; Wildcards</button>
+    <button class="gt" id="gt-m">&#128176; Money</button>
+    <button class="gt" id="gt-r">&#128184; Rent</button>
+    <button class="gt" id="gt-n" style="border-color:#ef4444;color:#ef4444">&#128480; No Mercy</button>
   </div>
-  <div class="gc2" id="gcontent"></div>
+  <div class="gb" id="gbdy"></div>
 </div>
 
 <!-- MODAL -->
-<div class="ov" id="modal"><div class="sheet"><div class="hdl"></div><div class="stl" id="mtitle"></div><div id="mbody"></div></div></div>
+<div class="mov" id="modal"><div class="mbox"><div class="mhdl"></div><div class="mtit" id="mtit"></div><div id="mbdy"></div></div></div>
 
 <!-- JSN -->
-<div class="jsn-ov" id="jsn-ov">
-  <div class="jsn-box">
-    <h2>🚫 JUST SAY NO?</h2>
-    <p id="jsn-msg">AI is playing against you.</p>
-    <button class="jsn-yes" onclick="jsnUse()">🚫 USE JUST SAY NO!</button>
-    <button class="jsn-no" onclick="jsnSkip()">Accept — let it happen</button>
+<div class="jov" id="jov">
+  <div class="jbox">
+    <h2>&#128683; JUST SAY NO?</h2>
+    <p id="jmsg">AI is playing against you.</p>
+    <button class="jy" id="jy">&#128683; USE JUST SAY NO!</button>
+    <button class="jn" id="jn">Accept &#8212; let it happen</button>
+  </div>
+</div>
+
+<!-- DEBT CHIP — give hand card to creditor -->
+<div class="jov" id="dcov" style="display:none">
+  <div class="jbox" style="border-color:#f59e0b">
+    <h2 style="color:#f59e0b">&#128480; DEBT CHIP</h2>
+    <p id="dcmsg">You have a debt chip. Choose a card from your hand to give to <b id="dccred">them</b>.</p>
+    <div id="dchand" style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:10px;max-height:200px;overflow-y:auto"></div>
   </div>
 </div>
 
 <!-- WIN -->
-<div class="win-ov" id="win-ov">
-  <div class="win-em" id="win-em">🏆</div>
-  <div class="win-t" id="win-t">YOU WIN!</div>
-  <div class="win-s" id="win-s"></div>
-  <button class="btn-main" onclick="startGame()" style="max-width:240px">PLAY AGAIN</button>
-  <button class="btn-out" onclick="goStart()" style="max-width:240px">Main Menu</button>
+<div class="wov" id="wov">
+  <div class="wi" id="wi">&#127942;</div>
+  <div class="wt" id="wt">YOU WIN!</div>
+  <div class="ws" id="ws">You collected 3 complete sets!</div>
+  <button class="btn-g" id="btn-again" style="max-width:256px">PLAY AGAIN</button>
+  <button class="btn-o" id="btn-menu" style="max-width:256px">Main Menu</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════ DATA ═══════════════
-const COLS={
-  brown:{name:"Brown",hex:"#8B5E3C",need:2,rent:[1,2]},
-  lightblue:{name:"Lt Blue",hex:"#5DB8E8",need:3,rent:[1,2,3]},
-  pink:{name:"Pink",hex:"#E055A0",need:3,rent:[1,2,4]},
-  orange:{name:"Orange",hex:"#F08030",need:3,rent:[1,3,5]},
-  red:{name:"Red",hex:"#D83030",need:3,rent:[2,3,6]},
-  yellow:{name:"Yellow",hex:"#E8CC30",need:3,rent:[2,4,6]},
-  green:{name:"Green",hex:"#30A850",need:3,rent:[2,4,7]},
-  blue:{name:"Blue",hex:"#1848D8",need:2,rent:[3,8]},
-  railroad:{name:"Railroad",hex:"#333344",need:4,rent:[1,2,3,4]},
-  utility:{name:"Utility",hex:"#8844BB",need:2,rent:[1,2]}
+window.addEventListener("load", function() {
+
+var COLS = {
+  brown:    {name:"Brown",    hex:"#8B5E3C", need:2, rent:[1,2]},
+  lightblue:{name:"Lt Blue", hex:"#5DB8E8", need:3, rent:[1,2,3]},
+  pink:     {name:"Pink",    hex:"#E055A0", need:3, rent:[1,2,4]},
+  orange:   {name:"Orange",  hex:"#F08030", need:3, rent:[1,3,5]},
+  red:      {name:"Red",     hex:"#D83030", need:3, rent:[2,3,6]},
+  yellow:   {name:"Yellow",  hex:"#E8CC30", need:3, rent:[2,4,6]},
+  green:    {name:"Green",   hex:"#30A850", need:3, rent:[2,4,7]},
+  blue:     {name:"Blue",    hex:"#1848D8", need:2, rent:[3,8]},
+  railroad: {name:"Railroad",hex:"#333344", need:4, rent:[1,2,3,4]},
+  utility:  {name:"Utility", hex:"#8844BB", need:2, rent:[1,2]}
 };
-const PNAMES={
-  brown:["Old Kent Rd","Whitechapel"],lightblue:["Angel Islington","Euston Rd","Pentonville"],
-  pink:["Pall Mall","Whitehall","Northumberland"],orange:["Bow St","Marlborough","Vine St"],
-  red:["Strand","Fleet St","Trafalgar Sq"],yellow:["Piccadilly","Coventry St","Leicester Sq"],
-  green:["Bond St","Oxford St","Regent St"],blue:["Park Lane","Mayfair"],
-  railroad:["Kings Cross","Marylebone","Fenchurch St","Liverpool St"],utility:["Electric Co","Water Works"]
+
+var PNAMES = {
+  brown:    ["Old Kent Rd","Whitechapel"],
+  lightblue:["Angel Islington","Euston Rd","Pentonville"],
+  pink:     ["Pall Mall","Whitehall","Northumberland"],
+  orange:   ["Bow St","Marlborough","Vine St"],
+  red:      ["Strand","Fleet St","Trafalgar Sq"],
+  yellow:   ["Piccadilly","Coventry St","Leicester Sq"],
+  green:    ["Bond St","Oxford St","Regent St"],
+  blue:     ["Park Lane","Mayfair"],
+  railroad: ["Kings Cross","Marylebone","Fenchurch St","Liverpool St"],
+  utility:  ["Electric Co","Water Works"]
 };
-let _uid=0;
-function mk(o){return{id:_uid++,...o}}
-function buildDeck(){
-  const d=[];
-  [[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]].forEach(([v,q])=>{for(let i=0;i<q;i++)d.push(mk({t:"money",v,name:"£"+v+"M"}))});
-  Object.entries(PNAMES).forEach(([col,ns])=>ns.forEach((name,i)=>d.push(mk({t:"prop",col,name,v:COLS[col].rent[i]||1}))));
-  [["pink","orange",2],["red","yellow",2],["lightblue","brown",1],["lightblue","railroad",1],["green","railroad",1],["utility","railroad",1],["green","blue",1]].forEach(([c1,c2,q])=>{for(let i=0;i<q;i++)d.push(mk({t:"wild",cols:[c1,c2],isMulti:false,v:0,name:COLS[c1].name+"/"+COLS[c2].name+" Wild"}))});
-  for(let i=0;i<2;i++)d.push(mk({t:"wild",cols:Object.keys(COLS),isMulti:true,v:0,name:"Multi-Colour Wild"}));
-  [["Pass Go",10,1,"🚀"],["Deal Breaker",2,5,"💥"],["Just Say No",3,4,"🚫"],["Sly Deal",3,3,"🎯"],["Force Deal",3,3,"🔄"],["Debt Collector",3,3,"💼"],["Its My Birthday",3,2,"🎂"],["Double the Rent",2,1,"✖️"],["House",3,3,"🏠"],["Hotel",2,4,"🏨"]].forEach(([name,q,v,icon])=>{for(let i=0;i<q;i++)d.push(mk({t:"action",name,v,icon}))});
-  [["blue","green",2],["red","yellow",2],["pink","orange",2],["lightblue","brown",2],["railroad","utility",2]].forEach(([c1,c2,q])=>{for(let i=0;i<q;i++)d.push(mk({t:"rent",cols:[c1,c2],isWild:false,v:1,name:"Rent ("+COLS[c1].name+"/"+COLS[c2].name+")"}))});
-  for(let i=0;i<3;i++)d.push(mk({t:"rent",cols:Object.keys(COLS),isWild:true,v:3,name:"Wild Rent"}));
+
+var _uid = 0;
+function nid() { return _uid++; }
+
+function buildDeck() {
+  var d = [], i, j, col, ck = Object.keys(COLS);
+  var mv = [[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]];
+  for (i = 0; i < mv.length; i++) for (j = 0; j < mv[i][1]; j++) d.push({id:nid(),t:"money",v:mv[i][0]});
+  for (i = 0; i < ck.length; i++) {
+    col = ck[i];
+    for (j = 0; j < PNAMES[col].length; j++) d.push({id:nid(),t:"prop",col:col,name:PNAMES[col][j],v:COLS[col].rent[j]||1});
+  }
+  var w2 = [["lightblue","brown"],["lightblue","railroad"],["pink","orange"],["pink","orange"],["red","yellow"],["red","yellow"],["blue","green"],["green","railroad"],["railroad","utility"]];
+  for (i = 0; i < w2.length; i++) d.push({id:nid(),t:"wild",cols:[w2[i][0],w2[i][1]],isMulti:false,v:0,name:COLS[w2[i][0]].name+"/"+COLS[w2[i][1]].name+" Wild"});
+  for (i = 0; i < 2; i++) d.push({id:nid(),t:"wild",cols:ck,isMulti:true,v:0,name:"Multi-Colour Wild"});
+  var acts = [
+    ["Pass Go",10,1,"&#128640;"],["Deal Breaker",2,5,"&#128165;"],["Just Say No",3,4,"&#128683;"],
+    ["Sly Deal",3,3,"&#127919;"],["Force Deal",3,3,"&#128260;"],["Debt Collector",3,3,"&#128188;"],
+    ["Its My Birthday",3,2,"&#127874;"],["Double the Rent",2,1,"&#10006;"],
+    ["House",3,3,"&#127968;"],["Hotel",2,4,"&#127976;"]
+  ];
+  for (i = 0; i < acts.length; i++) for (j = 0; j < acts[i][1]; j++) d.push({id:nid(),t:"action",name:acts[i][0],v:acts[i][2],icon:acts[i][3]});
+  var rp = [["lightblue","brown"],["pink","orange"],["red","yellow"],["blue","green"],["railroad","utility"]];
+  for (i = 0; i < rp.length; i++) for (j = 0; j < 2; j++) d.push({id:nid(),t:"rent",cols:[rp[i][0],rp[i][1]],isWild:false,v:1,name:"Rent ("+COLS[rp[i][0]].name+"/"+COLS[rp[i][1]].name+")"});
+  for (i = 0; i < 3; i++) d.push({id:nid(),t:"rent",cols:ck,isWild:true,v:3,name:"Wild Rent"});
   return d;
 }
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
-// ═══════════════ STATE ═══════════════
-let G={},numAI=1;
-function setPC(n){numAI=n;document.querySelectorAll(".pc-btn").forEach(b=>{b.classList.toggle("sel",+b.dataset.n===n)})}
-
-function mkPlayer(name,isHuman){return{name,isHuman,hand:[],bank:0,props:{},houses:{},hotels:{}}}
-
-function initGame(){
-  _uid=0;
-  const deck=shuffle(buildDeck());
-  const aiNames=["AI Alpha","AI Beta","AI Gamma"];
-  G={
-    deck,disc:[],
-    players:[mkPlayer("You",true),...Array.from({length:numAI},(_,i)=>mkPlayer(aiNames[i],false))],
-    turnIdx:0,
-    phase:"draw", // draw | play | discard | ai
-    drawsDone:0,  // how many of the 2 draws taken this turn
-    playsLeft:3,
-    dblRent:false,
-    discMode:false,discN:0,
-    sel:null
-  };
-  // Deal 5 to each
-  G.players.forEach(p=>{for(let i=0;i<5;i++)if(G.deck.length)p.hand.push(G.deck.pop())});
+function shuffle(a) {
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
 }
 
-function me(){return G.players[0]}
-function curP(){return G.players[G.turnIdx]}
-function isMyTurn(){return G.turnIdx===0}
+var G = {}, numAI = 1, gameMode = "classic", _wildSel = null; // _wildSel = {col, idx} of placed wild being moved
 
-// ═══════════════ HELPERS ═══════════════
-function pCount(p,col){return(p.props[col]||[]).length}
-function isComplete(p,col){return pCount(p,col)>=COLS[col].need}
-function completeSets(p){return Object.keys(COLS).filter(c=>isComplete(p,c))}
-function stealable(p){const r=[];Object.entries(p.props).forEach(([col,cards])=>{if(!isComplete(p,col))cards.forEach(c=>r.push({col,cid:c.id,card:c,label:c.name+" ("+COLS[col].name+")"}))});return r}
-function calcRent(p,col){const n=pCount(p,col);if(!n)return 0;const t=COLS[col].rent;let b=t[Math.min(n,t.length)-1];if(p.houses[col])b+=3;if(p.hotels[col])b+=4;return b}
-function drawCards(p,n){let got=0;for(let i=0;i<n;i++){if(!G.deck.length){if(!G.disc.length)break;G.deck=shuffle([...G.disc]);G.disc=[]}if(G.deck.length){p.hand.push(G.deck.pop());got++}}return got}
-function removeProp(p,col,cid){if(!p.props[col])return;p.props[col]=p.props[col].filter(c=>c.id!==cid);if(!p.props[col].length){delete p.props[col];delete p.houses[col];delete p.hotels[col]}else if(!isComplete(p,col)){delete p.houses[col];delete p.hotels[col]}}
-function addProp(p,card,col){if(!p.props[col])p.props[col]=[];p.props[col].push({...card,assignedCol:col})}
-function payDebt(payer,payee,amount){let rem=amount,paid=0;const bp=Math.min(rem,payer.bank);payer.bank-=bp;payee.bank+=bp;paid+=bp;rem-=bp;if(rem>0){const cols=Object.keys(payer.props).filter(c=>payer.props[c].length>0);for(const col of cols){if(rem<=0)break;const props=payer.props[col];if(props.length){const prop=props.pop();payee.bank+=(prop.v||1);paid+=(prop.v||1);rem-=(prop.v||1);if(!props.length){delete payer.props[col];delete payer.houses[col];delete payer.hotels[col]}else if(!isComplete(payer,col)){delete payer.houses[col];delete payer.hotels[col]}}}}return paid}
+function mkP(name, human) { return {name:name,human:human,hand:[],bank:0,props:{},houses:{},hotels:{},debtTo:null}; }
+// debtTo = player object this player owes a chip to (null = no chip)
 
-// ═══════════════ RENDER ═══════════════
-function cardHTML(card,idx,isSel,isDm){
-  const sel=isSel?" sel":"",dm=isDm?" dm":"";
-  const oc="onclick="selCard("+idx+")"";
-  if(card.t==="money")return`<div class="card money${sel}${dm}" ${oc}><div class="ch"><span>MONEY</span><span>💰</span></div><div class="cb2"><div style="font-family:var(--fd);font-size:26px;color:#6ee7b7;line-height:1">${card.v}</div><div style="font-size:10px;color:#4a8a4a;font-weight:700">MILLION</div></div><div class="cf" style="color:#6ee7b7">£${card.v}M</div></div>`;
-  if(card.t==="action"){const jsn=card.name==="Just Say No";return`<div class="card action${sel}${dm}" ${oc}><div class="ch"><span>ACTION</span><span style="font-size:8px">£${card.v}M</span></div><div class="cb2"><div class="ci">${card.icon}</div><div class="cn" style="color:${jsn?"#f87171":"#e0e7ff"}">${card.name}</div></div><div class="cf">ACTION</div></div>`}
-  if(card.t==="rent"){const h1=card.isWild?"#D83030":COLS[card.cols[0]].hex,h2=card.isWild?"#1848D8":COLS[card.cols[1]].hex,lbl=card.isWild?"ANY COLOUR":card.cols.map(c=>COLS[c].name).join("/");return`<div class="card rent${sel}${dm}" ${oc}><div class="ch" style="background:linear-gradient(90deg,${h1},${h2})"><span style="color:white">RENT</span><span style="color:white;font-size:8px">£${card.v}M</span></div><div class="cb2"><div class="ci">💸</div><div class="cn" style="color:white;font-size:7px">${lbl}</div></div><div class="cf" style="background:linear-gradient(90deg,${h1},${h2});color:white">RENT</div></div>`}
-  if(card.t==="prop"){const hx=COLS[card.col].hex;return`<div class="card${sel}${dm}" ${oc} style="border-color:${hx}88"><div class="ch" style="background:${hx}"><span style="color:white;font-size:7.5px">${COLS[card.col].name.toUpperCase()}</span><span style="color:white">£${card.v}M</span></div><div class="cb2" style="background:${hx}22"><div class="ci">🏠</div><div class="cn" style="color:white">${card.name}</div></div><div class="cf" style="background:${hx}44;color:white">${COLS[card.col].name.toUpperCase()}</div></div>`}
-  if(card.t==="wild"){const [h1,h2]=card.isMulti?["#D83030","#1848D8"]:[COLS[card.cols[0]].hex,COLS[card.cols[1]].hex],lbl=card.isMulti?"ANY COLOUR":card.cols.map(c=>COLS[c].name).join("/");return`<div class="card${sel}${dm}" ${oc} style="border-color:#888"><div class="ch" style="background:linear-gradient(90deg,${h1},${h2})"><span style="color:white">WILD</span><span style="color:white">£0M</span></div><div class="cb2" style="background:linear-gradient(160deg,${h1}33,${h2}33)"><div class="ci">🃏</div><div class="cn" style="color:white;font-size:7px">${lbl}</div></div><div class="cf" style="background:linear-gradient(90deg,${h1},${h2});color:white">WILDCARD</div></div>`}
-  return"";
+// ── NO MERCY DECK (120 cards) ──────────────────────────────────────────────
+function buildDeckNM() {
+  var d = [], i, j, col, ck = Object.keys(COLS);
+  // Money: same as classic (20)
+  var mv = [[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]];
+  for (i = 0; i < mv.length; i++) for (j = 0; j < mv[i][1]; j++) d.push({id:nid(),t:"money",v:mv[i][0]});
+  // Properties: same as classic (28)
+  for (i = 0; i < ck.length; i++) {
+    col = ck[i];
+    for (j = 0; j < PNAMES[col].length; j++) d.push({id:nid(),t:"prop",col:col,name:PNAMES[col][j],v:COLS[col].rent[j]||1});
+  }
+  // Wildcards: same as classic (11)
+  var w2 = [["lightblue","brown"],["lightblue","railroad"],["pink","orange"],["pink","orange"],["red","yellow"],["red","yellow"],["blue","green"],["green","railroad"],["railroad","utility"]];
+  for (i = 0; i < w2.length; i++) d.push({id:nid(),t:"wild",cols:[w2[i][0],w2[i][1]],isMulti:false,v:0,name:COLS[w2[i][0]].name+"/"+COLS[w2[i][1]].name+" Wild"});
+  for (i = 0; i < 2; i++) d.push({id:nid(),t:"wild",cols:ck,isMulti:true,v:0,name:"Multi-Colour Wild"});
+  // Action cards — No Mercy set (replaces/extends classic)
+  // Classic actions kept: Pass Go x10, Deal Breaker x2, Just Say No x3, Sly Deal x3,
+  //   Force Deal x3, Debt Collector x3, Its My Birthday x3, Double the Rent x2, House x3, Hotel x2
+  // No Mercy NEW: Double Rent (charge ALL players double) x3, Unfair Trade x3 = +6 new action cards
+  // Also remove 3 classic doubles-the-rent (replaced by new ones), net = 120 total
+  var acts = [
+    ["Pass Go",10,1,"&#128640;"],["Deal Breaker",2,5,"&#128165;"],["Just Say No",3,4,"&#128683;"],
+    ["Sly Deal",3,3,"&#127919;"],["Force Deal",3,3,"&#128260;"],["Debt Collector",3,3,"&#128188;"],
+    ["Its My Birthday",3,2,"&#127874;"],["Double the Rent",2,1,"&#10006;"],
+    ["House",3,3,"&#127968;"],["Hotel",2,4,"&#127976;"],
+    ["Double Rent",3,1,"&#128165;&#128184;"],["Unfair Trade",3,4,"&#127317;"]
+  ];
+  for (i = 0; i < acts.length; i++) for (j = 0; j < acts[i][1]; j++) d.push({id:nid(),t:"action",name:acts[i][0],v:acts[i][2],icon:acts[i][3]});
+  // Rent: same as classic (13)
+  var rp = [["lightblue","brown"],["pink","orange"],["red","yellow"],["blue","green"],["railroad","utility"]];
+  for (i = 0; i < rp.length; i++) for (j = 0; j < 2; j++) d.push({id:nid(),t:"rent",cols:[rp[i][0],rp[i][1]],isWild:false,v:1,name:"Rent ("+COLS[rp[i][0]].name+"/"+COLS[rp[i][1]].name+")"});
+  for (i = 0; i < 3; i++) d.push({id:nid(),t:"rent",cols:ck,isWild:true,v:3,name:"Wild Rent"});
+  return d;
 }
-function mpHTML(card,p,col){const done=isComplete(p,col),hh=p.hotels[col]?"🏨":p.houses[col]?"🏠":"",short=card.t==="wild"?"W":card.name.split(" ").pop().slice(0,6);return`<div class="mp${done?" done":""}" style="background:${COLS[col].hex}" title="${card.name}">${done?"<span class="ms">⭐</span>":""}<span>${short}</span>${hh?"<span class="mh">"+hh+"</span>":""}</div>`}
 
-function renderHand(){
-  const h=document.getElementById("hand");
-  h.innerHTML=me().hand.map((c,i)=>cardHTML(c,i,!G.discMode&&G.sel===i,G.discMode&&!!c._dm)).join("");
+function init() {
+  _uid = 0;
+  var deck = shuffle(gameMode === "nomercy" ? buildDeckNM() : buildDeck());
+  var ain = ["AI Alpha","AI Beta","AI Gamma"];
+  var players = [mkP("You", true)];
+  for (var i = 0; i < numAI; i++) players.push(mkP(ain[i], false));
+  G = {deck:deck,disc:[],players:players,turn:0,phase:"draw",drawn:0,plays:3,dbl:false,discMode:false,discN:0,sel:null,mode:gameMode};
+  // Deal 5 cards each
+  for (var p = 0; p < G.players.length; p++) for (var c = 0; c < 5; c++) if (G.deck.length) G.players[p].hand.push(G.deck.pop());
+  // No Mercy: each player also draws 2 more at setup (start with 7)
+  if (G.mode === "nomercy") {
+    for (var p2 = 0; p2 < G.players.length; p2++) for (var c2 = 0; c2 < 2; c2++) if (G.deck.length) G.players[p2].hand.push(G.deck.pop());
+  }
 }
-function renderProps(p,elId){
-  const el=document.getElementById(elId);
-  if(!Object.keys(p.props).length){el.innerHTML=`<span style="color:var(--dim);font-size:11px;padding:3px 0">No properties</span>`;return}
-  el.innerHTML=Object.entries(p.props).map(([col,cards])=>`<div class="pset"><div class="pset-l">${COLS[col].name} ${cards.length}/${COLS[col].need}</div>${cards.map(c=>mpHTML(c,p,col)).join("")}</div>`).join("");
-}
-function renderOpponents(){
-  const el=document.getElementById("opp-area");
-  const opps=G.players.filter((_,i)=>i!==0);
-  el.innerHTML=opps.map((p,i)=>{
-    const pi=i+1,isTurn=G.turnIdx===pi;
-    return`<div class="opp-row">
-      <div class="opp-lbl">${p.name} <span class="chip chip-ai" style="display:${isTurn?"":"none"}">${isTurn?"THEIR TURN":""}</span></div>
-      <div class="sr">
-        <div class="sp">Hand: <b>${p.hand.length}</b></div>
-        <div class="sp">Bank: <b>£${p.bank}M</b></div>
-        <div class="sp">Sets: <b>${completeSets(p).length}/3</b></div>
-      </div>
-      <div class="ai-hv">${Array(p.hand.length).fill("<div class="cb"></div>").join("")}</div>
-      <div id="opp-props-${pi}" class="pr"></div>
-    </div>`;
-  }).join("");
-  opps.forEach((_,i)=>renderProps(G.players[i+1],"opp-props-"+(i+1)));
-}
-function renderDrawArea(){
-  const myTurn=isMyTurn();
-  const inDraw=myTurn&&G.phase==="draw";
-  const canDraw=inDraw&&G.drawsDone<2;
-  const dp=document.getElementById("draw-pile");
-  dp.classList.toggle("can-draw",canDraw);
-  document.getElementById("draw-count").textContent=G.deck.length;
-  document.getElementById("disc-count").textContent=G.disc.length;
-  // draw dots
-  const dd1=document.getElementById("dd1"),dd2=document.getElementById("dd2");
-  dd1.className="draw-dot"+(G.drawsDone>=1?" drawn":inDraw?" needed":"");
-  dd2.className="draw-dot"+(G.drawsDone>=2?" drawn":inDraw&&G.drawsDone>=1?" needed":"");
-  // labels
-  const lbl=document.getElementById("ti-label"),sub=document.getElementById("ti-sub");
-  if(!myTurn){lbl.textContent=curP().name+"'S TURN";sub.textContent="Wait..."}
-  else if(G.phase==="draw"){lbl.textContent="YOUR TURN";sub.textContent=G.drawsDone===0?"Tap draw pile (1st card)":"Tap draw pile (2nd card)"}
-  else if(G.phase==="play"){lbl.textContent="YOUR TURN";sub.textContent="Play up to 3 cards"}
-  else if(G.phase==="discard"){lbl.textContent="DISCARD";sub.textContent="Tap cards to remove"}
-  // discard vis
-  const dv=document.getElementById("disc-vis");
-  if(G.disc.length){const top=G.disc[G.disc.length-1];dv.textContent=top.name;dv.style.background=top.t==="prop"?COLS[top.col].hex+"44":"var(--s2)";dv.style.color="var(--tx)";dv.style.fontSize="9px";dv.style.padding="4px"}
-  else{dv.textContent="Empty";dv.style.background="";dv.style.color="";dv.style.fontSize="";dv.style.padding=""}
-}
-function renderPips(){const played=3-G.playsLeft;for(let i=1;i<=3;i++){const p=document.getElementById("p"+i);p.className="pip"+(G.phase!=="play"||!isMyTurn()?"":i<=played?" used":" free")}}
-function renderBtns(){
-  const isp=isMyTurn()&&G.phase==="play";
-  const has=G.sel!==null;
-  const card=has?me().hand[G.sel]:null;
-  const canBank=has&&card&&(card.t==="money"||card.t==="action"||card.t==="rent");
-  document.getElementById("b-play").disabled=!isp||!has||G.playsLeft<=0;
-  document.getElementById("b-bank").disabled=!isp||!canBank||G.playsLeft<=0;
-  document.getElementById("b-end").disabled=!isp;
-  document.getElementById("you-chip").style.display=(isMyTurn()&&!G.discMode)?"":"none";
-  document.getElementById("you-bank").textContent="£"+me().bank+"M";
-  document.getElementById("you-sets").textContent=completeSets(me()).length+"/3";
-  if(G.discMode){["b-play","b-bank","b-end"].forEach(id=>document.getElementById(id).style.display="none");document.getElementById("b-disc").style.display="";document.getElementById("b-disc").disabled=G.discN>0;document.getElementById("disc-bar").classList.add("on");document.getElementById("disc-n").textContent=G.discN}
-  else{["b-play","b-bank","b-end"].forEach(id=>document.getElementById(id).style.display="");document.getElementById("b-disc").style.display="none";document.getElementById("disc-bar").classList.remove("on")}
-}
-function renderAll(){renderHand();renderProps(me(),"you-props");renderOpponents();renderDrawArea();renderPips();renderBtns()}
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2200)}
 
-// ═══════════════ DRAW PILE ═══════════════
-function playerDraw(){
-  if(!isMyTurn()||G.phase!=="draw"){toast("Not time to draw yet");return}
-  if(G.drawsDone>=2){toast("Already drew 2 cards — now play your cards");return}
-  const n=me().hand.length===0&&G.drawsDone===0?5:1;
-  const got=drawCards(me(),n);
-  G.drawsDone+=got;
-  if(G.drawsDone>=2||me().hand.length===0){G.phase="play";G.playsLeft=3}
+function me()   { return G.players[0]; }
+function cur()  { return G.players[G.turn]; }
+function isMe() { return G.turn === 0; }
+
+function pc(p, col)     { return (p.props[col] || []).length; }
+function setDone(p, col){ return pc(p, col) >= COLS[col].need; }
+function allSets(p)     { var r = [], k = Object.keys(COLS); for (var i = 0; i < k.length; i++) if (setDone(p, k[i])) r.push(k[i]); return r; }
+
+function stealable(p) {
+  var r = [], k = Object.keys(p.props);
+  for (var i = 0; i < k.length; i++) {
+    if (!setDone(p, k[i])) {
+      var c = p.props[k[i]];
+      for (var j = 0; j < c.length; j++) r.push({col:k[i],cid:c[j].id,card:c[j],label:c[j].name+" ("+COLS[k[i]].name+")",owner:p});
+    }
+  }
+  return r;
+}
+
+function rentAmt(p, col) {
+  var n = pc(p, col); if (!n) return 0;
+  var t = COLS[col].rent, b = t[Math.min(n, t.length) - 1];
+  if (p.houses[col]) b += 3; if (p.hotels[col]) b += 4;
+  return b;
+}
+
+function drawN(p, n) {
+  for (var i = 0; i < n; i++) {
+    if (!G.deck.length) { if (!G.disc.length) break; G.deck = shuffle(G.disc.slice()); G.disc = []; }
+    if (G.deck.length) p.hand.push(G.deck.pop());
+  }
+}
+
+function delProp(p, col, cid) {
+  if (!p.props[col]) return;
+  var nw = [];
+  for (var i = 0; i < p.props[col].length; i++) if (p.props[col][i].id !== cid) nw.push(p.props[col][i]);
+  p.props[col] = nw;
+  if (!nw.length) { delete p.props[col]; delete p.houses[col]; delete p.hotels[col]; }
+  else if (!setDone(p, col)) { delete p.houses[col]; delete p.hotels[col]; }
+}
+
+function addProp(p, card, col) {
+  if (!p.props[col]) p.props[col] = [];
+  var c = {id:card.id,t:card.t,col:col,name:card.name,v:card.v};
+  if (card.t === "wild") { c.cols = card.cols; c.isMulti = card.isMulti; }
+  p.props[col].push(c);
+}
+
+function payUp(payer, payee, amt) {
+  var rem = amt, paid = 0;
+  var bp = Math.min(rem, payer.bank); payer.bank -= bp; payee.bank += bp; paid += bp; rem -= bp;
+  if (rem > 0) {
+    var k = Object.keys(payer.props);
+    for (var i = 0; i < k.length && rem > 0; i++) {
+      var col = k[i], props = payer.props[col];
+      if (props && props.length) {
+        var prop = props.pop(), val = prop.v || 1;
+        payee.bank += val; paid += val; rem -= val;
+        if (!props.length) { delete payer.props[col]; delete payer.houses[col]; delete payer.hotels[col]; }
+        else if (!setDone(payer, col)) { delete payer.houses[col]; delete payer.hotels[col]; }
+      }
+    }
+  }
+  // No Mercy: if still can't pay in full, issue a Debt Chip
+  if (rem > 0 && G.mode === "nomercy") {
+    if (!payer.debtTo) { // only one chip at a time
+      payer.debtTo = payee;
+      toast("&#128480; " + payer.name + " can't pay in full &#8212; Debt Chip issued!");
+    }
+  }
+  return paid;
+}
+
+function others(actor) {
+  var r = [];
+  for (var i = 0; i < G.players.length; i++) if (G.players[i] !== actor) r.push(G.players[i]);
+  return r;
+}
+
+function ge(id) { return document.getElementById(id); }
+
+function toast(msg) {
+  var t = ge("toast"); t.innerHTML = msg; t.classList.add("on");
+  setTimeout(function() { t.classList.remove("on"); }, 2400);
+}
+
+// ── CARD HTML ──────────────────────────────────────────────────────────────
+function cardH(card, idx, sel, mrk) {
+  var sc = sel ? " sel" : "", mc = mrk ? " mrk" : "", h = "";
+  if (card.t === "money") {
+    h = '<div class="card money' + sc + mc + '" data-i="' + idx + '">';
+    h += '<div class="ct"><span>MONEY</span><span>&#128176;</span></div>';
+    h += '<div class="cm"><div style="font-family:\'Bebas Neue\',cursive;font-size:26px;color:#6ee7b7;line-height:1">' + card.v + '</div><div style="font-size:9px;color:#4a8a4a;font-weight:700">MILLION</div></div>';
+    h += '<div class="cb2">&#163;' + card.v + 'M</div></div>';
+  } else if (card.t === "action") {
+    h = '<div class="card action' + sc + mc + '" data-i="' + idx + '">';
+    h += '<div class="ct"><span>ACTION</span><span style="font-size:8px">&#163;' + card.v + 'M</span></div>';
+    h += '<div class="cm"><div class="ci">' + card.icon + '</div><div class="cn" style="color:' + (card.name === "Just Say No" ? "#f87171" : "#e0e7ff") + '">' + card.name + '</div></div>';
+    h += '<div class="cb2">ACTION</div></div>';
+  } else if (card.t === "rent") {
+    var rh1 = card.isWild ? "#D83030" : COLS[card.cols[0]].hex;
+    var rh2 = card.isWild ? "#1848D8" : COLS[card.cols[1]].hex;
+    var rl = card.isWild ? "ANY COLOUR" : (COLS[card.cols[0]].name + "/" + COLS[card.cols[1]].name);
+    h = '<div class="card rent' + sc + mc + '" data-i="' + idx + '">';
+    h += '<div class="ct" style="background:linear-gradient(90deg,' + rh1 + ',' + rh2 + ')"><span style="color:#fff">RENT</span><span style="color:#fff;font-size:8px">&#163;' + card.v + 'M</span></div>';
+    h += '<div class="cm"><div class="ci">&#128184;</div><div class="cn" style="color:#fff;font-size:6.5px">' + rl + '</div></div>';
+    h += '<div class="cb2" style="background:linear-gradient(90deg,' + rh1 + ',' + rh2 + ');color:#fff">RENT</div></div>';
+  } else if (card.t === "prop") {
+    var hx = COLS[card.col].hex;
+    h = '<div class="card' + sc + mc + '" data-i="' + idx + '" style="border-color:' + hx + '99">';
+    h += '<div class="ct" style="background:' + hx + '"><span style="color:#fff;font-size:7px">' + COLS[card.col].name.toUpperCase() + '</span><span style="color:#fff">&#163;' + card.v + 'M</span></div>';
+    h += '<div class="cm" style="background:' + hx + '22"><div class="ci">&#127968;</div><div class="cn" style="color:#fff">' + card.name + '</div></div>';
+    h += '<div class="cb2" style="background:' + hx + '55;color:#fff">' + COLS[card.col].name.toUpperCase() + '</div></div>';
+  } else if (card.t === "wild") {
+    var wh1 = card.isMulti ? "#D83030" : COLS[card.cols[0]].hex;
+    var wh2 = card.isMulti ? "#1848D8" : COLS[card.cols[1]].hex;
+    var wl = card.isMulti ? "ANY COLOUR" : (COLS[card.cols[0]].name + "/" + COLS[card.cols[1]].name);
+    h = '<div class="card' + sc + mc + '" data-i="' + idx + '" style="border-color:#aaa">';
+    h += '<div class="ct" style="background:linear-gradient(90deg,' + wh1 + ',' + wh2 + ')"><span style="color:#fff">WILD</span><span style="color:#fff">&#163;0M</span></div>';
+    h += '<div class="cm" style="background:linear-gradient(150deg,' + wh1 + '33,' + wh2 + '33)"><div class="ci">&#127183;</div><div class="cn" style="color:#fff;font-size:6.5px">' + wl + '</div></div>';
+    h += '<div class="cb2" style="background:linear-gradient(90deg,' + wh1 + ',' + wh2 + ');color:#fff">WILDCARD</div></div>';
+  }
+  return h;
+}
+
+function mpH(card, p, col) {
+  var d = setDone(p, col);
+  var short = (card.t === "wild") ? "W" : card.name.split(" ").pop().slice(0, 6);
+  var hh = p.hotels[col] ? "&#127976;" : (p.houses[col] ? "&#127968;" : "");
+  var h = '<div class="mp' + (d ? " done" : "") + '" style="background:' + COLS[col].hex + '" title="' + card.name + '">';
+  if (d) h += '<span style="position:absolute;top:-3px;right:-1px;font-size:9px">&#11088;</span>';
+  h += '<span>' + short + '</span>';
+  if (hh) h += '<span style="position:absolute;bottom:0;right:1px;font-size:8px">' + hh + '</span>';
+  return h + '</div>';
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderHand() {
+  var el = ge("hand"), html = "", i, card;
+  for (i = 0; i < me().hand.length; i++) {
+    card = me().hand[i];
+    html += cardH(card, i, !G.discMode && G.sel === i, G.discMode && !!card._mrk);
+  }
+  el.innerHTML = html;
+  var cards = el.querySelectorAll("[data-i]");
+  for (i = 0; i < cards.length; i++) {
+    (function(c) { c.addEventListener("click", function() { selCard(parseInt(c.getAttribute("data-i"), 10)); }); })(cards[i]);
+  }
+}
+
+function renderProps(p, elid) {
+  var el = ge(elid), k = Object.keys(p.props), html = "", i, j;
+  var isPlayer = (p === me());
+  if (!k.length) { el.innerHTML = '<span style="color:var(--dim);font-size:11px;padding:3px 0">No properties yet</span>'; return; }
+  for (i = 0; i < k.length; i++) {
+    var col = k[i], cards = p.props[col];
+    html += '<div class="ps"><div class="pl">' + COLS[col].name + " " + cards.length + "/" + COLS[col].need + '</div>';
+    for (j = 0; j < cards.length; j++) {
+      var isSel = isPlayer && _wildSel && _wildSel.col === col && _wildSel.idx === j;
+      var mpExtra = (isPlayer && cards[j].t === "wild") ? ' data-wc="' + col + '" data-wi="' + j + '" style="cursor:pointer' + (isSel ? ';box-shadow:0 0 0 2px #7c3aed' : '') + '"' : '';
+      html += mpH(cards[j], p, col).replace('<div class="mp', '<div class="mp' + mpExtra.replace('<div class="mp', ''));
+      // Re-do properly: inject attrs into mpH output
+    }
+    html += '</div>';
+  }
+  // Actually do it cleanly:
+  html = "";
+  for (i = 0; i < k.length; i++) {
+    var col2 = k[i], cards2 = p.props[col2];
+    html += '<div class="ps"><div class="pl">' + COLS[col2].name + " " + cards2.length + "/" + COLS[col2].need + '</div>';
+    for (j = 0; j < cards2.length; j++) {
+      var raw = mpH(cards2[j], p, col2);
+      if (isPlayer && cards2[j].t === "wild") {
+        var isSel2 = _wildSel && _wildSel.col === col2 && _wildSel.idx === j;
+        raw = raw.replace('class="mp', 'class="mp" data-wc="' + col2 + '" data-wi="' + j + '" style="cursor:pointer' + (isSel2 ? ';box-shadow:0 0 0 2px #7c3aed,0 0 0 4px #4c1d95' : '') + '" ');
+      }
+      html += raw;
+    }
+    html += '</div>';
+  }
+  el.innerHTML = html;
+  // Attach wildcard tap listeners for player only
+  if (isPlayer && isMe() && G.phase === "play") {
+    var wcs = el.querySelectorAll("[data-wc]");
+    for (var wi = 0; wi < wcs.length; wi++) {
+      (function(node) {
+        node.addEventListener("click", function() {
+          var wCol = node.getAttribute("data-wc"), wIdx = parseInt(node.getAttribute("data-wi"), 10);
+          if (_wildSel && _wildSel.col === wCol && _wildSel.idx === wIdx) { _wildSel = null; }
+          else { _wildSel = {col:wCol, idx:wIdx}; G.sel = null; }
+          renderAll();
+        });
+      })(wcs[wi]);
+    }
+  }
+}
+
+function renderOpps() {
+  var el = ge("opp"), html = "", i, j, p;
+  for (i = 1; i < G.players.length; i++) {
+    p = G.players[i]; var isT = (G.turn === i);
+    var dcBadge = (G.mode === "nomercy" && p.debtTo) ? ' <span class="dchip" title="Debt Chip held">D</span>' : '';
+    html += '<div class="ob"><div class="oh"><span class="on2">' + p.name + '</span>' + dcBadge + (isT ? '<span class="badge bai">THEIR TURN</span>' : '') + '</div>';
+    html += '<div class="osr"><div class="st">Hand: <b>' + p.hand.length + '</b></div><div class="st">Bank: <b>&#163;' + p.bank + 'M</b></div><div class="st">Sets: <b>' + allSets(p).length + '/3</b></div></div>';
+    html += '<div class="ocv">';
+    for (j = 0; j < p.hand.length; j++) html += '<div class="cb"></div>';
+    html += '</div><div id="op' + i + '" class="pr"></div></div>';
+  }
+  el.innerHTML = html;
+  for (i = 1; i < G.players.length; i++) renderProps(G.players[i], "op" + i);
+}
+
+function renderTable() {
+  var nmDebt = G.mode === "nomercy" && me && me() && me().debtTo;
+  var totalDraws = nmDebt ? 3 : 2;
+  var mt = isMe(), inD = mt && G.phase === "draw", canD = inD && G.drawn < totalDraws;
+  var dp = ge("dpile");
+  if (canD) dp.classList.add("pulse"); else dp.classList.remove("pulse");
+  ge("dcnt").textContent = G.deck.length;
+  ge("dscnt").textContent = G.disc.length;
+  var d1 = ge("dd1"), d2 = ge("dd2");
+  d1.className = "dd" + (G.drawn >= 1 ? " done" : (inD ? " next" : ""));
+  d2.className = "dd" + (G.drawn >= 2 ? " done" : (inD && G.drawn >= 1 ? " next" : ""));
+  var tin = ge("tin"), tsb = ge("tsb");
+  if (!mt) { tin.textContent = cur().name + " TURN"; tsb.textContent = "Wait..."; }
+  else if (G.phase === "draw") {
+    tin.textContent = nmDebt ? "🚨 DEBT CHIP — YOUR TURN" : "YOUR TURN";
+    if (G.drawn === 0)      tsb.textContent = nmDebt ? "Tap draw pile (1 of 3)" : "Tap draw pile (1 of 2)";
+    else if (G.drawn === 1) tsb.textContent = nmDebt ? "Tap draw pile (2 of 3)" : "Tap draw pile (2 of 2)";
+    else                    tsb.textContent = "Tap draw pile (3 of 3)";
+  }
+  else if (G.phase === "play") { tin.textContent = "YOUR TURN"; tsb.textContent = "Play up to 3 cards"; }
+  else if (G.phase === "discard") { tin.textContent = "DISCARD"; tsb.textContent = "Tap cards to select"; }
+  var dt = ge("dtop");
+  if (G.disc.length) {
+    var top = G.disc[G.disc.length - 1];
+    dt.textContent = top.name || "Card";
+    dt.style.background = (top.t === "prop") ? COLS[top.col].hex + "44" : "var(--s2)";
+    dt.style.color = "var(--tx)"; dt.style.fontSize = "9px";
+  } else { dt.textContent = "Empty"; dt.style.background = ""; dt.style.color = ""; dt.style.fontSize = ""; }
+}
+
+function renderPips() {
+  var played = 3 - G.plays;
+  for (var i = 1; i <= 3; i++) {
+    var p = ge("pd" + i);
+    if (!isMe() || G.phase !== "play") p.className = "pd";
+    else p.className = "pd " + (i <= played ? "used" : "free");
+  }
+}
+
+function renderBtns() {
+  var isp = isMe() && G.phase === "play", has = G.sel !== null;
+  var card = has ? me().hand[G.sel] : null;
+  var bankOk = has && card && (card.t === "money" || card.t === "action" || card.t === "rent");
+  ge("abp").disabled = !isp || !has || G.plays <= 0;
+  ge("abb").disabled = !isp || !bankOk || G.plays <= 0;
+  ge("abe").disabled = !isp;
+  ge("ybdg").style.display = (isMe() && !G.discMode) ? "" : "none";
+  ge("ybk").innerHTML = "&#163;" + me().bank + "M";
+  ge("yst").textContent = allSets(me()).length + "/3";
+  if (G.discMode) {
+    ge("abp").style.display = "none"; ge("abb").style.display = "none"; ge("abe").style.display = "none";
+    ge("abd").style.display = ""; ge("abd").disabled = (G.discN > 0);
+    ge("dal").classList.add("on"); ge("dn").textContent = G.discN;
+    ge("ab2").style.display = "none";
+  } else {
+    ge("abp").style.display = ""; ge("abb").style.display = ""; ge("abe").style.display = "";
+    ge("abd").style.display = "none"; ge("dal").classList.remove("on");
+    var showMW = isp && _wildSel !== null; // free action — no plays check needed
+    ge("ab2").style.display = showMW ? "" : "none";
+    ge("abmw").disabled = !showMW;
+  }
+}
+
+function renderAll() { renderHand(); renderProps(me(), "yprops"); renderOpps(); renderTable(); renderPips(); renderBtns(); }
+
+// ── PLAYER INPUT ──────────────────────────────────────────────────────────
+function selCard(i) {
+  if (G.discMode) { toggleMrk(i); return; }
+  if (!isMe() || G.phase !== "play") return;
+  _wildSel = null; // clear any wildcard-move selection
+  G.sel = (G.sel === i) ? null : i; renderAll();
+}
+
+function toggleMrk(i) {
+  var c = me().hand[i];
+  if (c._mrk) { c._mrk = false; G.discN++; }
+  else { if (G.discN <= 0) { toast("Already selected enough cards"); return; } c._mrk = true; G.discN--; }
+  renderHand(); renderBtns();
+}
+
+// ── DRAW ──────────────────────────────────────────────────────────────────
+function playerDraw() {
+  if (!isMe() || G.phase !== "draw") { toast("Not time to draw yet"); return; }
+  // Determine how many draws this turn (No Mercy: +1 if holding a debt chip)
+  var extraDraw = (G.mode === "nomercy" && me().debtTo) ? 1 : 0;
+  var totalDraw = 2 + extraDraw;
+  if (G.drawn >= totalDraw) { toast("Already drew &#8212; play your cards now"); return; }
+  var n = (me().hand.length === 0 && G.drawn === 0) ? 5 : 1;
+  drawN(me(), n); G.drawn += (n === 5 ? totalDraw : 1);
+  if (G.drawn >= totalDraw) {
+    G.phase = "play"; G.plays = 3;
+    // No Mercy: if owed a debt chip, must give 1 hand card to creditor before playing
+    if (G.mode === "nomercy" && me().debtTo) {
+      var cred = me().debtTo;
+      me().debtTo = null;
+      debtPayCard(me(), cred, function() { renderAll(); });
+      return;
+    }
+  }
   renderAll();
 }
 
-// ═══════════════ PLAYER INPUT ═══════════════
-function selCard(i){
-  if(G.discMode){toggleDisc(i);return}
-  if(!isMyTurn()||G.phase!=="play")return;
-  G.sel=G.sel===i?null:i;renderHand();renderBtns();
-}
-function toggleDisc(i){const c=me().hand[i];if(c._dm){c._dm=false;G.discN++}else{if(G.discN<=0){toast("Already selected enough");return}c._dm=true;G.discN--}renderHand();renderBtns()}
-function confirmDiscard(){me().hand.filter(c=>c._dm).forEach(c=>{me().hand=me().hand.filter(x=>x.id!==c.id);c._dm=undefined;G.disc.push(c)});G.discMode=false;G.discN=0;renderAll();advanceTurn()}
-function playSel(){if(G.sel===null)return;if(G.playsLeft<=0){toast("No plays left");return}const card=me().hand[G.sel];me().hand.splice(G.sel,1);G.sel=null;G.playsLeft--;doPlay(me(),card,()=>{})}
-function bankSel(){if(G.sel===null)return;const card=me().hand[G.sel];if(card.t!=="money"&&card.t!=="action"&&card.t!=="rent"){toast("Only money, action, or rent cards can be banked");return}me().hand.splice(G.sel,1);G.sel=null;G.playsLeft--;me().bank+=card.v;toast("Banked "+card.name+" as £"+card.v+"M");renderAll();checkWin(me())}
-function endTurn(){
-  if(me().hand.length>7){G.discMode=true;G.discN=me().hand.length-7;toast("Hand has "+me().hand.length+" cards — discard "+G.discN);renderAll();return}
-  advanceTurn();
-}
-function advanceTurn(){G.sel=null;G.discMode=false;nextPlayer()}
-
-// ═══════════════ TURN MANAGEMENT ═══════════════
-function nextPlayer(){
-  G.turnIdx=(G.turnIdx+1)%G.players.length;
-  G.drawsDone=0;G.dblRent=false;G.playsLeft=3;
-  if(isMyTurn()){G.phase="draw";renderAll();toast("Your turn — tap the draw pile!")}
-  else{G.phase="ai";renderAll();setTimeout(aiTurn,700)}
+// ── PLAY / BANK / END ────────────────────────────────────────────────────
+function playSel() {
+  if (G.sel === null) return;
+  if (G.plays <= 0) { toast("No plays left &#8212; end your turn"); return; }
+  var card = me().hand[G.sel];
+  var k = [];
+  for (var i = 0; i < me().hand.length; i++) if (i !== G.sel) k.push(me().hand[i]);
+  me().hand = k; G.sel = null; G.plays--;
+  doPlay(me(), card, function() {});
 }
 
-// ═══════════════ PLAY ENGINE ═══════════════
-let _jsnYes=null,_jsnNo=null;
-function doPlay(actor,card,done){
-  const others=G.players.filter(p=>p!==actor);
-  const isMe=actor===me();
-  if(card.t==="money"){actor.bank+=card.v;if(!isMe)G.disc.push(card);renderAll();checkWin(actor);done();return}
-  if(card.t==="prop"){addProp(actor,card,card.col);if(!isMe)toast(actor.name+" placed "+card.name+(isComplete(actor,card.col)?" — SET COMPLETE ⭐":""));renderAll();checkWin(actor);done();return}
-  if(card.t==="wild"){
-    if(isMe){pickColor(card,col=>{addProp(me(),card,col);renderAll();checkWin(me());done()})}
-    else{const col=aiWildColor(actor,card);addProp(actor,card,col);toast(actor.name+" placed wildcard as "+COLS[col].name+(isComplete(actor,col)?" ⭐":""));renderAll();checkWin(actor);done()}
-    return}
-  if(card.t==="action"){doAction(actor,card,others,isMe,done);return}
-  if(card.t==="rent"){doRent(actor,card,others,isMe,done);return}
-  done();
+function bankSel() {
+  if (G.sel === null) return;
+  var card = me().hand[G.sel];
+  if (card.t !== "money" && card.t !== "action" && card.t !== "rent") { toast("Only money, action, or rent cards can be banked"); return; }
+  var k = [];
+  for (var i = 0; i < me().hand.length; i++) if (i !== G.sel) k.push(me().hand[i]);
+  me().hand = k; G.sel = null; G.plays--;
+  me().bank += card.v; G.disc.push(card);
+  toast("Banked " + card.name + " &#8212; &#163;" + card.v + "M added"); renderAll(); checkWin(me());
 }
-function doAction(actor,card,others,isMe,done){
-  const n=card.name;
-  if(n==="Pass Go"){const got=drawCards(actor,2);if(!isMe)toast(actor.name+" drew "+got+" cards (Pass Go)");renderAll();done();return}
-  if(n==="Its My Birthday"){if(!isMe)toast(actor.name+" played Its My Birthday 🎂 — pay £2M!");chargeAll(actor,others,2,isMe,"Its My Birthday — pay £2M!",done);return}
-  if(n==="Debt Collector"){
-    if(isMe){pickTarget(others,"Debt Collector — choose who pays £5M",target=>{jsnPrompt(target,"Debt Collector — pay £5M!",()=>{const p=payDebt(target,me(),5);toast(target.name+" paid £"+p+"M");renderAll();checkWin(me());done()},()=>{toast(target.name+" blocked with Just Say No!");done()})})}
-    else{const target=me();jsnPromptPlayer(""+actor.name+" played Debt Collector — pay £5M!",()=>{const p=payDebt(target,actor,5);toast("You paid £"+p+"M");renderAll();done()},()=>{toast("You blocked Debt Collector!");done()})}
-    return}
-  if(n==="Sly Deal"){
-    if(isMe){const targets=others.flatMap(p=>stealable(p).map(s=>({...s,owner:p})));if(!targets.length){toast("No stealable properties");G.playsLeft++;me().hand.push(card);renderAll();done();return}showPropPickMulti("Sly Deal — Steal a property",targets,picked=>{jsnPrompt(picked.owner,"Sly Deal!",()=>{removeProp(picked.owner,picked.col,picked.cid);addProp(me(),picked.card,picked.col);toast("You stole "+picked.card.name+"!");renderAll();checkWin(me());done()},()=>{toast(picked.owner.name+" blocked with Just Say No!");done()})})}
-    else{const st=stealable(me());if(st.length){const t=st[Math.floor(Math.random()*st.length)];jsnPromptPlayer(actor.name+" wants to steal "+t.card.name+" (Sly Deal)!",()=>{removeProp(me(),t.col,t.cid);addProp(actor,t.card,t.col);toast(actor.name+" stole "+t.card.name+"!");renderAll();done()},()=>{toast("You blocked Sly Deal!");done()});return}done()}
-    return}
-  if(n==="Force Deal"){
-    if(isMe){const targets=others.flatMap(p=>stealable(p).map(s=>({...s,owner:p})));const mySt=stealable(me());if(!targets.length||!mySt.length){toast("Both sides need properties");G.playsLeft++;me().hand.push(card);renderAll();done();return}showPropPickMulti("Force Deal — Pick property to take",targets,picked=>{showPropPick("Pick your property to give",mySt,give=>{jsnPrompt(picked.owner,"Force Deal!",()=>{removeProp(picked.owner,picked.col,picked.cid);addProp(me(),picked.card,picked.col);removeProp(me(),give.col,give.cid);addProp(picked.owner,give.card,give.col);toast("Force Deal complete!");renderAll();checkWin(me());done()},()=>{toast(picked.owner.name+" blocked Force Deal!");done()})})})}
-    else{const st=stealable(me()),aiSt=stealable(actor);if(st.length&&aiSt.length){const t=st[Math.floor(Math.random()*st.length)],g=aiSt[Math.floor(Math.random()*aiSt.length)];jsnPromptPlayer(actor.name+" wants to Force Deal: take your "+t.card.name+" for their "+g.card.name,()=>{removeProp(me(),t.col,t.cid);addProp(actor,t.card,t.col);removeProp(actor,g.col,g.cid);addProp(me(),g.card,g.col);toast(actor.name+" forced a deal!");renderAll();done()},()=>{toast("You blocked Force Deal!");done()});return}done()}
-    return}
-  if(n==="Deal Breaker"){
-    if(isMe){const targets=others.flatMap(p=>completeSets(p).map(col=>({p,col})));if(!targets.length){toast("No complete sets to steal");G.playsLeft++;me().hand.push(card);renderAll();done();return}showSetPickMulti("Deal Breaker — Steal a complete set",targets,({p:target,col})=>{jsnPrompt(target,"Deal Breaker — stealing your "+COLS[col].name+" set!",()=>{const set=[...target.props[col]];target.props[col]=[];delete target.houses[col];delete target.hotels[col];set.forEach(c=>addProp(me(),c,col));toast("Deal Breaker! Stole "+target.name+"'s "+COLS[col].name+" set 💥");renderAll();checkWin(me());done()},()=>{toast(target.name+" blocked Deal Breaker!");done()})})}
-    else{const cs=completeSets(me());if(cs.length){const col=cs[Math.floor(Math.random()*cs.length)];jsnPromptPlayer(actor.name+" played Deal Breaker — stealing your "+COLS[col].name+" set!",()=>{const set=[...me().props[col]];me().props[col]=[];delete me().houses[col];delete me().hotels[col];set.forEach(c=>addProp(actor,c,col));toast(actor.name+" stole your "+COLS[col].name+" set!");renderAll();done()},()=>{toast("You blocked Deal Breaker!");done()});return}done()}
-    return}
-  if(n==="Double the Rent"){G.dblRent=true;if(!isMe)toast(actor.name+" played Double the Rent ✖️");renderAll();done();return}
-  if(n==="House"){
-    if(isMe){const cs=completeSets(me()).filter(c=>!me().houses[c]);if(!cs.length){toast("Need a complete set without a house");G.playsLeft++;me().hand.push(card);renderAll();done();return}showSetPick("Add House to which set?",cs,me(),col=>{me().houses[col]=true;renderAll();done()})}
-    else{const cs=completeSets(actor).filter(c=>!actor.houses[c]);if(cs.length){actor.houses[cs[0]]=true;toast(actor.name+" added 🏠 to "+COLS[cs[0]].name)}renderAll();done()}
-    return}
-  if(n==="Hotel"){
-    if(isMe){const cs=Object.keys(me().houses).filter(c=>!me().hotels[c]&&isComplete(me(),c));if(!cs.length){toast("Need a complete set with a house first");G.playsLeft++;me().hand.push(card);renderAll();done();return}showSetPick("Add Hotel to which set?",cs,me(),col=>{me().hotels[col]=true;renderAll();done()})}
-    else{const cs=Object.keys(actor.houses).filter(c=>!actor.hotels[c]&&isComplete(actor,c));if(cs.length){actor.hotels[cs[0]]=true;toast(actor.name+" added 🏨 to "+COLS[cs[0]].name)}renderAll();done()}
-    return}
-  if(n==="Just Say No"){toast("Just Say No activates automatically when AI attacks!");G.playsLeft++;me().hand.push(card);renderAll();done();return}
-  done();
+
+function moveWild() {
+  if (!_wildSel) return;
+  var col = _wildSel.col, idx = _wildSel.idx;
+  var card = me().props[col] && me().props[col][idx];
+  if (!card || card.t !== "wild") { toast("No wildcard selected"); _wildSel = null; renderAll(); return; }
+  // Remove from current colour — FREE, does not cost a play (official rules)
+  me().props[col].splice(idx, 1);
+  if (!me().props[col].length) { delete me().props[col]; delete me().houses[col]; delete me().hotels[col]; }
+  else if (!setDone(me(), col)) { delete me().houses[col]; delete me().hotels[col]; }
+  _wildSel = null;
+  // Pick new colour
+  pickColor(card, function(newCol) {
+    addProp(me(), card, newCol);
+    toast("&#127183; Wildcard moved to " + COLS[newCol].name + " (free &#8212; no play used)");
+    renderAll(); checkWin(me());
+  });
 }
-function doRent(actor,card,others,isMe,done){
-  if(isMe){
-    const rentable=card.isWild?Object.keys(me().props).filter(c=>me().props[c]?.length):card.cols.filter(c=>me().props[c]?.length);
-    if(!rentable.length){toast("No matching properties to charge rent for");G.playsLeft++;me().hand.push(card);renderAll();done();return}
-    const opts=rentable.map(c=>({label:COLS[c].name+" — £"+calcRent(me(),c)+"M",col:c}));
-    showColorPick(opts,col=>{let amt=calcRent(me(),col);if(G.dblRent){amt*=2;G.dblRent=false;toast("Double Rent! ✖️")}
-    chargeAll(me(),others,amt,true,"Rent — pay £"+amt+"M!",done)});
+
+function endTurn() {
+  if (me().hand.length > 7) {
+    G.discMode = true; G.discN = me().hand.length - 7;
+    toast("Discard " + G.discN + " card(s)"); renderAll(); return;
+  }
+  nextTurn();
+}
+
+function confirmDiscard() {
+  var keep = [], i;
+  for (i = 0; i < me().hand.length; i++) {
+    if (me().hand[i]._mrk) { me().hand[i]._mrk = undefined; G.disc.push(me().hand[i]); }
+    else keep.push(me().hand[i]);
+  }
+  me().hand = keep; G.discMode = false; G.discN = 0; renderAll(); nextTurn();
+}
+
+// ── TURN FLOW ────────────────────────────────────────────────────────────
+function nextTurn() {
+  G.sel = null; G.discMode = false; _wildSel = null;
+  G.turn = (G.turn + 1) % G.players.length;
+  G.drawn = 0; G.dbl = false; G.plays = 3;
+  if (isMe()) { G.phase = "draw"; renderAll(); toast("Your turn! Tap the draw pile"); }
+  else { G.phase = "ai"; renderAll(); setTimeout(aiTurn, 700); }
+}
+
+// ── PLAY ENGINE ──────────────────────────────────────────────────────────
+var _jy = null, _jn = null;
+
+function doPlay(actor, card, cb) {
+  var im = (actor === me());
+  if (card.t === "money")  { actor.bank += card.v; G.disc.push(card); renderAll(); checkWin(actor); cb(); return; }
+  if (card.t === "prop")   { addProp(actor, card, card.col); if (!im) toast(actor.name + " placed " + card.name + (setDone(actor, card.col) ? " &#11088; SET!" : "")); renderAll(); checkWin(actor); cb(); return; }
+  if (card.t === "wild")   {
+    if (im) { pickColor(card, function(col) { addProp(me(), card, col); renderAll(); checkWin(me()); cb(); }); }
+    else    { var wc = aiBestCol(actor, card); addProp(actor, card, wc); toast(actor.name + " placed wildcard as " + COLS[wc].name); renderAll(); checkWin(actor); cb(); }
+    return;
+  }
+  if (card.t === "action") { doAction(actor, card, im, cb); return; }
+  if (card.t === "rent")   { doRent(actor, card, im, cb); return; }
+  cb();
+}
+
+function doAction(actor, card, im, cb) {
+  var n = card.name, oth = others(actor);
+
+  if (n === "Pass Go") {
+    drawN(actor, 2);
+    if (!im) toast(actor.name + " drew 2 extra cards (Pass Go)");
+    renderAll(); cb(); return;
+  }
+
+  if (n === "Its My Birthday") {
+    if (!im) toast(actor.name + " played Its My Birthday! Everyone pays &#163;2M!");
+    chargeAll(actor, oth, 2, im, "Its My Birthday &#8212; pay &#163;2M!", cb); return;
+  }
+
+  if (n === "Debt Collector") {
+    if (im) {
+      pickTarget(oth, "Debt Collector &#8212; who pays &#163;5M?", function(target) {
+        jsnAI(target, "Debt Collector &#8212; pay &#163;5M!",
+          function() { var p = payUp(target, me(), 5); toast(target.name + " paid &#163;" + p + "M"); renderAll(); checkWin(me()); cb(); },
+          function() { toast(target.name + " blocked with Just Say No!"); cb(); });
+      });
+    } else {
+      jsnMe(actor.name + " played Debt Collector &#8212; pay &#163;5M!",
+        function() { var p = payUp(me(), actor, 5); toast("You paid &#163;" + p + "M"); renderAll(); cb(); },
+        function() { toast("You blocked Debt Collector!"); cb(); });
+    }
+    return;
+  }
+
+  if (n === "Sly Deal") {
+    if (im) {
+      var targets = []; var oi;
+      for (oi = 0; oi < oth.length; oi++) { var st = stealable(oth[oi]); for (var si = 0; si < st.length; si++) targets.push(st[si]); }
+      if (!targets.length) { toast("No stealable properties (all sets are complete)"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+      showPropPick("Sly Deal &#8212; Steal 1 property", targets, function(picked) {
+        jsnAI(picked.owner, "Sly Deal!",
+          function() { delProp(picked.owner, picked.col, picked.cid); addProp(me(), picked.card, picked.col); toast("You stole " + picked.card.name + "!"); renderAll(); checkWin(me()); cb(); },
+          function() { toast(picked.owner.name + " blocked Sly Deal!"); cb(); });
+      });
+    } else {
+      var st2 = stealable(me());
+      if (st2.length) {
+        var t2 = st2[Math.floor(Math.random() * st2.length)];
+        jsnMe(actor.name + " wants to steal your " + t2.card.name + " (Sly Deal)!",
+          function() { delProp(me(), t2.col, t2.cid); addProp(actor, t2.card, t2.col); toast(actor.name + " stole " + t2.card.name + "!"); renderAll(); cb(); },
+          function() { toast("You blocked Sly Deal!"); cb(); });
+        return;
+      }
+      cb();
+    }
+    return;
+  }
+
+  if (n === "Force Deal") {
+    if (im) {
+      var allSt = []; var fi, fst;
+      for (fi = 0; fi < oth.length; fi++) { fst = stealable(oth[fi]); for (var fj = 0; fj < fst.length; fj++) allSt.push(fst[fj]); }
+      var mySt = stealable(me());
+      if (!allSt.length || !mySt.length) { toast("Force Deal needs stealable properties on both sides"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+      showPropPick("Force Deal &#8212; Pick property to take", allSt, function(picked) {
+        showPropPick("Force Deal &#8212; Pick property to give", mySt, function(give) {
+          jsnAI(picked.owner, "Force Deal!",
+            function() { delProp(picked.owner, picked.col, picked.cid); addProp(me(), picked.card, picked.col); delProp(me(), give.col, give.cid); addProp(picked.owner, give.card, give.col); toast("Force Deal done!"); renderAll(); checkWin(me()); cb(); },
+            function() { toast(picked.owner.name + " blocked Force Deal!"); cb(); });
+        });
+      });
+    } else {
+      var pSt = stealable(me()), aiSt = stealable(actor);
+      if (pSt.length && aiSt.length) {
+        var pt = pSt[Math.floor(Math.random() * pSt.length)], ag = aiSt[Math.floor(Math.random() * aiSt.length)];
+        jsnMe(actor.name + " Force Deal: take your " + pt.card.name + " for their " + ag.card.name,
+          function() { delProp(me(), pt.col, pt.cid); addProp(actor, pt.card, pt.col); delProp(actor, ag.col, ag.cid); addProp(me(), ag.card, ag.col); toast(actor.name + " forced a deal!"); renderAll(); cb(); },
+          function() { toast("You blocked Force Deal!"); cb(); });
+        return;
+      }
+      cb();
+    }
+    return;
+  }
+
+  if (n === "Deal Breaker") {
+    if (im) {
+      var dbT = []; var di, dbs;
+      for (di = 0; di < oth.length; di++) { dbs = allSets(oth[di]); for (var dj = 0; dj < dbs.length; dj++) dbT.push({p:oth[di],col:dbs[dj]}); }
+      if (!dbT.length) { toast("No complete sets to steal"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+      showSetMulti("Deal Breaker &#8212; Steal a complete set", dbT, function(t) {
+        jsnAI(t.p, "Deal Breaker!",
+          function() { var s = t.p.props[t.col].slice(); t.p.props[t.col] = []; delete t.p.houses[t.col]; delete t.p.hotels[t.col]; for (var si = 0; si < s.length; si++) addProp(me(), s[si], t.col); toast("Deal Breaker! Stole " + COLS[t.col].name + " set &#128165;"); renderAll(); checkWin(me()); cb(); },
+          function() { toast(t.p.name + " blocked Deal Breaker!"); cb(); });
+      });
+    } else {
+      var dbc = allSets(me());
+      if (dbc.length) {
+        var dcol = dbc[Math.floor(Math.random() * dbc.length)];
+        jsnMe(actor.name + " played Deal Breaker on your " + COLS[dcol].name + " set!",
+          function() { var s = me().props[dcol].slice(); me().props[dcol] = []; delete me().houses[dcol]; delete me().hotels[dcol]; for (var si = 0; si < s.length; si++) addProp(actor, s[si], dcol); toast(actor.name + " stole your " + COLS[dcol].name + " set!"); renderAll(); cb(); },
+          function() { toast("You blocked Deal Breaker!"); cb(); });
+        return;
+      }
+      cb();
+    }
+    return;
+  }
+
+  if (n === "Double the Rent") {
+    G.dbl = true;
+    if (!im) toast(actor.name + " played Double the Rent!");
+    renderAll(); cb(); return;
+  }
+
+  if (n === "House") {
+    var validH = allSets(actor).filter(function(c) { return !actor.houses[c] && c !== "railroad" && c !== "utility"; });
+    if (im) {
+      if (!validH.length) { toast("Need a complete set without a house (not Railroad/Utility)"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+      showSetPick("Add House to which set?", validH, me(), function(col) { me().houses[col] = true; toast("&#127968; House added to " + COLS[col].name); renderAll(); cb(); });
+    } else {
+      if (validH.length) { actor.houses[validH[0]] = true; toast(actor.name + " added a House &#127968;"); }
+      renderAll(); cb();
+    }
+    return;
+  }
+
+  if (n === "Hotel") {
+    var validHt = Object.keys(actor.houses).filter(function(c) { return !actor.hotels[c] && setDone(actor, c); });
+    if (im) {
+      if (!validHt.length) { toast("Need a complete set with a house first"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+      showSetPick("Add Hotel to which set?", validHt, me(), function(col) { me().hotels[col] = true; toast("&#127976; Hotel added to " + COLS[col].name); renderAll(); cb(); });
+    } else {
+      if (validHt.length) { actor.hotels[validHt[0]] = true; toast(actor.name + " added a Hotel &#127976;"); }
+      renderAll(); cb();
+    }
+    return;
+  }
+
+  if (n === "Just Say No") {
+    toast("Just Say No blocks AI actions automatically via the popup &#8212; no need to play it manually");
+    G.plays++; me().hand.push(card); renderAll(); cb(); return;
+  }
+
+  // ── NO MERCY exclusive cards ──────────────────────────────────────────────
+
+  if (n === "Double Rent") {
+    // Charge ALL other players double rent for a chosen colour (No Mercy)
+    if (im) {
+      var drRentable = [], drkeys = Object.keys(me().props);
+      for (var dri = 0; dri < drkeys.length; dri++) if (me().props[drkeys[dri]] && me().props[drkeys[dri]].length) drRentable.push(drkeys[dri]);
+      if (!drRentable.length) { toast("No properties to charge Double Rent for"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+      var drOpts = [];
+      for (var droi = 0; droi < drRentable.length; droi++) drOpts.push({label:COLS[drRentable[droi]].name + " &#8212; &#163;" + (rentAmt(me(), drRentable[droi]) * 2) + "M each",col:drRentable[droi]});
+      showColorPick(drOpts, function(col) {
+        var amt = rentAmt(me(), col) * 2;
+        toast("DOUBLE RENT! &#163;" + amt + "M from ALL players!");
+        chargeAll(me(), others(me()), amt, true, "Double Rent &#8212; pay &#163;" + amt + "M!", cb);
+      });
+    } else {
+      var drkeys2 = Object.keys(actor.props), drBest = null, drBestAmt = 0;
+      for (var drk = 0; drk < drkeys2.length; drk++) { var dra = rentAmt(actor, drkeys2[drk]) * 2; if (dra > drBestAmt) { drBestAmt = dra; drBest = drkeys2[drk]; } }
+      if (!drBest) { cb(); return; }
+      toast(actor.name + " plays Double Rent! &#163;" + drBestAmt + "M from all!");
+      chargeAll(actor, [me()], drBestAmt, false, actor.name + " Double Rent &#8212; pay &#163;" + drBestAmt + "M!", cb);
+    }
+    return;
+  }
+
+  if (n === "Unfair Trade") {
+    // Swap entire bank with another player (No Mercy)
+    if (im) {
+      if (!me().bank) { toast("Unfair Trade: cannot play if your bank is empty"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+      var utOth = others(me()).filter(function(p) { return p.bank > 0; });
+      // Can target anyone; no restriction on target's bank being empty (only YOUR bank must not be empty)
+      pickTarget(others(me()), "Unfair Trade &#8212; swap your bank with?", function(target) {
+        jsnAI(target, "Unfair Trade!",
+          function() { var tmp = me().bank; me().bank = target.bank; target.bank = tmp; toast("Unfair Trade! Banks swapped with " + target.name + "!"); renderAll(); cb(); },
+          function() { toast(target.name + " blocked Unfair Trade!"); cb(); });
+      });
+    } else {
+      if (!actor.bank) { cb(); return; }
+      if (!me().bank) { cb(); return; } // rulebook: cannot play if target's bank is also empty (debatable — AI skips)
+      jsnMe(actor.name + " played Unfair Trade &#8212; they want to swap banks with you!",
+        function() { var tmp = actor.bank; actor.bank = me().bank; me().bank = tmp; toast(actor.name + " swapped banks with you!"); renderAll(); cb(); },
+        function() { toast("You blocked Unfair Trade!"); cb(); });
+    }
+    return;
+  }
+
+  cb();
+}
+
+function doRent(actor, card, im, cb) {
+  if (im) {
+    var rentable = [], ckeys = card.isWild ? Object.keys(me().props) : card.cols;
+    for (var i = 0; i < ckeys.length; i++) if (me().props[ckeys[i]] && me().props[ckeys[i]].length) rentable.push(ckeys[i]);
+    if (!rentable.length) { toast("No matching properties to charge rent for"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
+    var opts = [];
+    for (var ri = 0; ri < rentable.length; ri++) opts.push({label:COLS[rentable[ri]].name + " &#8212; &#163;" + rentAmt(me(), rentable[ri]) + "M",col:rentable[ri]});
+    showColorPick(opts, function(col) {
+      var amt = rentAmt(me(), col);
+      if (G.dbl) { amt *= 2; G.dbl = false; toast("DOUBLE RENT! Charging &#163;" + amt + "M!"); }
+      else toast("Charging &#163;" + amt + "M " + COLS[col].name + " rent!");
+      chargeAll(me(), others(me()), amt, true, "Rent &#8212; pay &#163;" + amt + "M!", cb);
+    });
   } else {
-    const rentable=card.isWild?Object.keys(actor.props).filter(c=>actor.props[c]?.length):card.cols.filter(c=>actor.props[c]?.length);
-    if(!rentable.length){done();return}
-    const col=rentable.reduce((b,c)=>calcRent(actor,c)>calcRent(actor,b)?c:b,rentable[0]);
-    let amt=calcRent(actor,col);if(G.dblRent){amt*=2;G.dblRent=false}
-    toast(actor.name+" charging £"+amt+"M "+COLS[col].name+" rent!");
-    chargeAll(actor,[me()],amt,false,actor.name+" charging rent — pay £"+amt+"M!",done);
+    var rentable2 = [], rks = card.isWild ? Object.keys(actor.props) : card.cols;
+    for (var rki = 0; rki < rks.length; rki++) if (actor.props[rks[rki]] && actor.props[rks[rki]].length) rentable2.push(rks[rki]);
+    if (!rentable2.length) { cb(); return; }
+    var best = rentable2[0];
+    for (var rbi = 1; rbi < rentable2.length; rbi++) if (rentAmt(actor, rentable2[rbi]) > rentAmt(actor, best)) best = rentable2[rbi];
+    var amt2 = rentAmt(actor, best);
+    if (G.dbl) { amt2 *= 2; G.dbl = false; }
+    toast(actor.name + " charges &#163;" + amt2 + "M " + COLS[best].name + " rent!");
+    chargeAll(actor, [me()], amt2, false, actor.name + " rent &#8212; pay &#163;" + amt2 + "M!", cb);
   }
 }
-function chargeAll(actor,targets,amt,isMe,msg,done){
-  // Charge each target one at a time
-  let i=0;
-  function next(){
-    if(i>=targets.length){done();return}
-    const target=targets[i++];
-    if(target===me()){
-      jsnPromptPlayer(msg,()=>{const p=payDebt(target,actor,amt);toast("You paid £"+p+"M");renderAll();next()},()=>{toast("You blocked it!");next()});
+
+function chargeAll(actor, targets, amt, im, msg, cb) {
+  var i = 0;
+  function next() {
+    if (i >= targets.length) { cb(); return; }
+    var target = targets[i++];
+    if (target === me()) {
+      jsnMe(msg,
+        function() { var p = payUp(target, actor, amt); toast("You paid &#163;" + p + "M"); renderAll(); next(); },
+        function() { toast("You blocked with Just Say No!"); next(); });
     } else {
-      jsnPrompt(target,msg,()=>{const p=payDebt(target,actor,amt);if(isMe)toast(target.name+" paid £"+p+"M");renderAll();checkWin(actor);next()},()=>{if(isMe)toast(target.name+" blocked with Just Say No!");next()});
+      jsnAI(target, msg,
+        function() { var p = payUp(target, actor, amt); if (im) toast(target.name + " paid &#163;" + p + "M"); renderAll(); checkWin(actor); next(); },
+        function() { if (im) toast(target.name + " blocked with Just Say No!"); next(); });
     }
   }
   next();
 }
 
-// ═══════════════ JSN ═══════════════
-function jsnPromptPlayer(msg,accept,decline){
-  if(me().hand.some(c=>c.name==="Just Say No")){_jsnYes=decline;_jsnNo=accept;document.getElementById("jsn-msg").textContent=msg+" You have a Just Say No!";document.getElementById("jsn-ov").classList.add("on")}
-  else accept();
+// ── JSN ───────────────────────────────────────────────────────────────────
+function jsnMe(msg, accept, decline) {
+  var hasJ = false;
+  for (var i = 0; i < me().hand.length; i++) if (me().hand[i].name === "Just Say No") { hasJ = true; break; }
+  if (hasJ) {
+    _jy = decline; _jn = accept;
+    ge("jmsg").innerHTML = msg + "<br><b>You have a Just Say No card!</b>";
+    ge("jov").classList.add("on");
+  } else { accept(); }
 }
-function jsnPrompt(target,msg,accept,decline){
-  if(target.hand.some(c=>c.name==="Just Say No")&&Math.random()<0.55){const j=target.hand.find(c=>c.name==="Just Say No");target.hand=target.hand.filter(c=>c.id!==j.id);G.disc.push(j);decline()}
-  else accept();
-}
-function jsnUse(){document.getElementById("jsn-ov").classList.remove("on");const j=me().hand.find(c=>c.name==="Just Say No");if(j){me().hand=me().hand.filter(c=>c.id!==j.id);G.disc.push(j)}if(_jsnYes){const cb=_jsnYes;_jsnYes=null;_jsnNo=null;cb()}}
-function jsnSkip(){document.getElementById("jsn-ov").classList.remove("on");if(_jsnNo){const cb=_jsnNo;_jsnYes=null;_jsnNo=null;cb()}}
 
-// ═══════════════ AI TURN ═══════════════
-function aiTurn(){
-  const actor=curP();
-  // Draw 2 (or 5 if empty)
-  const n=actor.hand.length===0?5:2;
-  drawCards(actor,n);
-  renderAll();
-  let plays=0;
-  function next(){
-    if(plays>=3||!actor.hand.length){aiDiscard(actor);return}
-    const card=aiBest(actor);if(!card){aiDiscard(actor);return}
-    plays++;actor.hand=actor.hand.filter(c=>c.id!==card.id);
-    setTimeout(()=>doPlay(actor,card,()=>{if(!checkWin(actor))setTimeout(next,600)}),500);
+// Counter-JSN: when AI uses JSN against the player's action,
+// give the player a chance to play their own JSN back.
+function jsnCounter(onCancel, onCounter) {
+  var hasJ = false;
+  for (var i = 0; i < me().hand.length; i++) if (me().hand[i].name === "Just Say No") { hasJ = true; break; }
+  if (hasJ) {
+    _jy = onCounter; _jn = onCancel;
+    ge("jmsg").innerHTML = "AI used Just Say No against YOUR card!<br><b>You have a Just Say No &#8212; cancel their cancellation?</b>";
+    ge("jov").classList.add("on");
+  } else { onCancel(); }
+}
+
+function jsnAI(target, msg, accept, decline) {
+  var j = null;
+  for (var i = 0; i < target.hand.length; i++) if (target.hand[i].name === "Just Say No") { j = target.hand[i]; break; }
+  if (j && Math.random() < 0.55) {
+    // AI plays JSN — remove it from their hand
+    var k = [];
+    for (var ki = 0; ki < target.hand.length; ki++) if (target.hand[ki].id !== j.id) k.push(target.hand[ki]);
+    target.hand = k; G.disc.push(j);
+    // If this is the human player being attacked, offer counter-JSN
+    if (target === me()) {
+      // This branch is for AI countering player's attack on AI — offer player to counter back
+      jsnCounter(decline, function() { accept(); });
+    } else {
+      // AI blocks another AI — just decline
+      decline();
+    }
+  } else { accept(); }
+}
+
+function jsnUse() {
+  ge("jov").classList.remove("on");
+  var j = null;
+  for (var i = 0; i < me().hand.length; i++) if (me().hand[i].name === "Just Say No") { j = me().hand[i]; break; }
+  if (j) {
+    var k = [];
+    for (var ki = 0; ki < me().hand.length; ki++) if (me().hand[ki].id !== j.id) k.push(me().hand[ki]);
+    me().hand = k; G.disc.push(j);
   }
-  setTimeout(next,400);
-}
-function aiDiscard(actor){
-  if(actor.hand.length>7){const n=actor.hand.length-7;const s=[...actor.hand].sort((a,b)=>a.v-b.v);for(let i=0;i<n;i++){const c=s[i];actor.hand=actor.hand.filter(x=>x.id!==c.id);G.disc.push(c)}}
-  renderAll();setTimeout(nextPlayer,500);
-}
-function aiWildColor(actor,card){const cols=card.isMulti?Object.keys(COLS):card.cols;return cols.reduce((b,c)=>(pCount(actor,c)/COLS[c].need)>(pCount(actor,b)/COLS[b].need)?c:b,cols[0])}
-function aiBest(actor){
-  const h=actor.hand;
-  const comp=h.find(c=>c.t==="prop"&&pCount(actor,c.col)+1>=COLS[c.col].need);if(comp)return comp;
-  const others=G.players.filter(p=>p!==actor);
-  const db=h.find(c=>c.name==="Deal Breaker");if(db&&others.some(p=>completeSets(p).length))return db;
-  const rent=h.find(c=>c.t==="rent");if(rent){const r=rent.isWild?Object.keys(actor.props).filter(c=>actor.props[c]?.length):rent.cols.filter(c=>actor.props[c]?.length);if(r.length)return rent}
-  const sly=h.find(c=>c.name==="Sly Deal");if(sly&&others.some(p=>stealable(p).length))return sly;
-  const pg=h.find(c=>c.name==="Pass Go");if(pg&&actor.hand.length<4)return pg;
-  const prop=h.find(c=>c.t==="prop"||c.t==="wild");if(prop)return prop;
-  const bd=h.find(c=>c.name==="Its My Birthday"||c.name==="Debt Collector");if(bd)return bd;
-  if(pg)return pg;
-  return h.find(c=>c.t==="money")||null;
+  if (_jy) { var cb = _jy; _jy = null; _jn = null; cb(); }
 }
 
-// ═══════════════ WIN ═══════════════
-function checkWin(p){if(completeSets(p).length>=3){G.phase="over";document.getElementById("win-em").textContent=p===me()?"🏆":"😢";document.getElementById("win-t").textContent=p===me()?"YOU WIN!":p.name+" WINS!";document.getElementById("win-s").textContent=p===me()?"You collected 3 complete sets!":p.name+" collected 3 complete sets first!";document.getElementById("win-ov").classList.add("on");return true}return false}
-
-// ═══════════════ MODALS ═══════════════
-function openModal(){document.getElementById("modal").classList.add("on")}
-function closeModal(){document.getElementById("modal").classList.remove("on")}
-document.getElementById("modal").addEventListener("click",e=>{if(e.target===document.getElementById("modal"))closeModal()});
-function showPropPick(title,props,cb){document.getElementById("mtitle").textContent=title;const body=document.getElementById("mbody");body.innerHTML=props.map((p,i)=>`<button class="mo" data-i="${i}"><h4>${p.label}</h4><p>${COLS[p.col].name}</p></button>`).join("")+`<button class="mc" onclick="closeModal()">Cancel</button>`;body.querySelectorAll(".mo").forEach((b,i)=>b.onclick=()=>{closeModal();cb(props[i])});openModal()}
-function showPropPickMulti(title,props,cb){document.getElementById("mtitle").textContent=title;const body=document.getElementById("mbody");body.innerHTML=props.map((p,i)=>`<button class="mo" data-i="${i}" style="border-left:4px solid ${COLS[p.col].hex}"><h4>${p.label}</h4><p>${p.owner?p.owner.name:""}  ${COLS[p.col].name}</p></button>`).join("")+`<button class="mc" onclick="closeModal()">Cancel</button>`;body.querySelectorAll(".mo").forEach((b,i)=>b.onclick=()=>{closeModal();cb(props[i])});openModal()}
-function showSetPick(title,cols,p,cb){document.getElementById("mtitle").textContent=title;const body=document.getElementById("mbody");body.innerHTML=cols.map(c=>`<button class="mo" data-c="${c}" style="border-left:4px solid ${COLS[c].hex}"><h4 style="color:${COLS[c].hex}">${COLS[c].name}</h4><p>${pCount(p,c)} properties</p></button>`).join("")+`<button class="mc" onclick="closeModal()">Cancel</button>`;body.querySelectorAll(".mo").forEach(b=>b.onclick=()=>{closeModal();cb(b.dataset.c)});openModal()}
-function showSetPickMulti(title,targets,cb){document.getElementById("mtitle").textContent=title;const body=document.getElementById("mbody");body.innerHTML=targets.map((t,i)=>`<button class="mo" data-i="${i}" style="border-left:4px solid ${COLS[t.col].hex}"><h4 style="color:${COLS[t.col].hex}">${COLS[t.col].name}</h4><p>${t.p.name} — ${pCount(t.p,t.col)} cards</p></button>`).join("")+`<button class="mc" onclick="closeModal()">Cancel</button>`;body.querySelectorAll(".mo").forEach((b,i)=>b.onclick=()=>{closeModal();cb(targets[i])});openModal()}
-function showColorPick(opts,cb){document.getElementById("mtitle").textContent="Charge rent for which colour?";const body=document.getElementById("mbody");body.innerHTML=opts.map((o,i)=>`<button class="mo" style="border-left:4px solid ${COLS[o.col].hex}"><h4>${o.label}</h4></button>`).join("")+`<button class="mc" onclick="closeModal()">Cancel</button>`;body.querySelectorAll(".mo").forEach((b,i)=>b.onclick=()=>{closeModal();cb(opts[i].col)});openModal()}
-function pickColor(card,cb){const cols=card.isMulti?Object.keys(COLS):card.cols;document.getElementById("mtitle").textContent="Place wildcard as which colour?";const body=document.getElementById("mbody");body.innerHTML=`<div class="cgrid">${cols.map(c=>`<div class="copt" style="background:${COLS[c].hex}" data-c="${c}">${COLS[c].name}</div>`).join("")}</div>`;body.querySelectorAll(".copt").forEach(b=>b.onclick=()=>{closeModal();cb(b.dataset.c)});openModal()}
-function pickTarget(others,title,cb){document.getElementById("mtitle").textContent=title;const body=document.getElementById("mbody");body.innerHTML=others.map((p,i)=>`<button class="mo" data-i="${i}"><h4>${p.name}</h4><p>Bank: £${p.bank}M · Sets: ${completeSets(p).length}</p></button>`).join("")+`<button class="mc" onclick="closeModal()">Cancel</button>`;body.querySelectorAll(".mo").forEach((b,i)=>b.onclick=()=>{closeModal();cb(others[i])});openModal()}
-
-// ═══════════════ SCREENS ═══════════════
-let _from="pg-start",_rfrom="pg-start";
-function showScr(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("on"));document.getElementById(id).classList.add("on")}
-function openGloss(){_from=document.querySelector(".scr.on")?.id||"pg-start";showScr("pg-gloss");switchTab(null,"action")}
-function closeGloss(){showScr(_from)}
-function openRules(){_rfrom=document.querySelector(".scr.on")?.id||"pg-start";showScr("pg-rules")}
-function closeRules(){showScr(_rfrom)}
-function goStart(){showScr("pg-start")}
-document.getElementById("gloss-x").onclick=closeGloss;
-document.getElementById("rules-x").onclick=closeRules;
-
-// ═══════════════ GLOSSARY ═══════════════
-function switchTab(btn,tab){document.querySelectorAll(".gtab").forEach(t=>t.classList.remove("on"));if(btn)btn.classList.add("on");else document.querySelectorAll(".gtab").forEach(t=>{if(t.getAttribute("onclick")?.includes("'"+tab+"'"))t.classList.add("on")});loadTab(tab)}
-function loadTab(tab){
-  const el=document.getElementById("gcontent");
-  if(tab==="action"){el.innerHTML=[{name:"Pass Go",icon:"🚀",cnt:"×10",bg:"#0a1a3a",desc:"Draw 2 extra cards immediately.",tip:"💡 Can be banked for £1M."},{name:"Its My Birthday",icon:"🎂",cnt:"×3",bg:"#3a1a0a",desc:"ALL opponents pay you £2M each.",tip:"💡 Can be blocked by Just Say No."},{name:"Debt Collector",icon:"💼",cnt:"×3",bg:"#1a1a0a",desc:"Force ONE chosen player to pay you £5M.",tip:"💡 Target the richest bank."},{name:"Sly Deal",icon:"🎯",cnt:"×3",bg:"#0a1a1a",desc:"Steal 1 property from an opponent. Cannot steal from a COMPLETE set.",tip:"💡 Disrupt nearly-complete sets."},{name:"Force Deal",icon:"🔄",cnt:"×3",bg:"#1a0a1a",desc:"Swap your property for theirs. Neither can be from a complete set.",tip:"💡 Grab what you need."},{name:"Deal Breaker",icon:"💥",cnt:"×2",bg:"#2a0a0a",desc:"Steal an ENTIRE complete property set. Most powerful card in the game.",tip:"💡 Opponent will probably Just Say No."},{name:"Just Say No",icon:"🚫",cnt:"×3",bg:"#2a0808",desc:"Cancel ANY action against you. Does NOT use one of your 3 plays. Can cancel another JSN.",tip:"💡 Game FULLY PAUSES with a popup when AI attacks you."},{name:"Double the Rent",icon:"✖️",cnt:"×2",bg:"#0a2a0a",desc:"Play BEFORE a rent card. Both cost 1 play each. Next rent doubles.",tip:"💡 Devastating on full Blue with house + hotel."},{name:"House",icon:"🏠",cnt:"×3",bg:"#0a1a10",desc:"Add to any COMPLETE set (not Railroad or Utility). Rent +£3M.",tip:"💡 Can be banked for £3M."},{name:"Hotel",icon:"🏨",cnt:"×2",bg:"#1a2a10",desc:"Add to a complete set that already has a House. Rent +£4M more.",tip:"💡 Full Blue + house + hotel = £15M rent!"}].map(c=>`<div class="gcard"><div class="gch" style="background:${c.bg}30"><div class="gico" style="background:${c.bg}">${c.icon}</div><div><h3>${c.name}</h3><span>Action Card ${c.cnt}</span></div></div><div class="gcb">${c.desc}<div class="gtip">${c.tip}</div></div></div>`).join("")}
-  if(tab==="prop"){el.innerHTML=`<div class="pgrid">${Object.entries(COLS).map(([col,d])=>`<div class="pent" style="background:${d.hex}22;border:1px solid ${d.hex}44"><h4 style="color:${d.hex}">${d.name}</h4><p>${d.need} to complete</p><p>Rent: £${d.rent.join("M / £")}M</p></div>`).join("")}</div><div class="gcard" style="margin-top:10px"><div class="gch"><div class="gico" style="background:#1a2a3a">🏠</div><div><h3>How Properties Work</h3></div></div><div class="gcb">Group same-colour cards. More = higher rent. 3 complete sets = WIN.<div class="gtip">💡 Houses (+£3M) and Hotels (+£4M) only on complete sets. Not Railroad or Utility.</div></div></div>`}
-  if(tab==="wild"){el.innerHTML=`<div class="gcard"><div class="gch"><div class="gico" style="background:linear-gradient(135deg,#D83030,#1848D8)">🃏</div><div><h3>Multi-Colour Wildcard</h3><span>×2 in deck</span></div></div><div class="gcb">Any colour. Worth £0 — cannot pay debts. Can be stolen. Reassign costs 1 play.<div class="gtip">💡 Use to complete a set you are one card away from.</div></div></div><div class="gcard"><div class="gch"><div class="gico" style="background:linear-gradient(135deg,#E055A0,#F08030)">🎨</div><div><h3>Two-Colour Wildcards</h3><span>×8 in deck</span></div></div><div class="gcb">Each covers 2 specific colours:<ul style="margin-top:8px;padding-left:16px;line-height:2.2"><li>🩷 Pink / 🟠 Orange ×2</li><li>🔴 Red / 🟡 Yellow ×2</li><li>🔵 Lt Blue / 🟤 Brown ×1</li><li>🔵 Lt Blue / 🚂 Railroad ×1</li><li>🟢 Green / 🚂 Railroad ×1</li><li>🟣 Utility / 🚂 Railroad ×1</li><li>🟢 Green / 🔵 Blue ×1</li></ul><div class="gtip">💡 You choose the colour when placing.</div></div></div>`}
-  if(tab==="money"){el.innerHTML=`<div class="gcard"><div class="gch"><div class="gico" style="background:#0f2d0f">💰</div><div><h3>Money Cards</h3><span>20 cards</span></div></div><div class="gcb"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">${[[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]].map(([v,q])=>`<div style="background:#1a4a1a;border-radius:8px;padding:8px;text-align:center"><div style="font-family:var(--fd);font-size:20px;color:#6ee7b7">£${v}M</div><div style="font-size:11px;color:#4a8a4a">×${q}</div></div>`).join("")}</div>Place in your bank. Pay rent and charges from here.<div class="gtip">💡 Action and rent cards can also be banked for their £ value — they lose their action permanently.</div></div></div>`}
-  if(tab==="rent"){el.innerHTML=`<div class="gcard"><div class="gch"><div class="gico" style="background:linear-gradient(135deg,#D83030,#1848D8)">💸</div><div><h3>Wild Rent</h3><span>×3 in deck</span></div></div><div class="gcb">Charge rent for ANY colour you own — pick the highest. All opponents pay.<div class="gtip">💡 Combine with Double the Rent on a full Blue set with house + hotel.</div></div></div><div class="gcard"><div class="gch"><div class="gico" style="background:#2a1a3a">💸</div><div><h3>Colour Rent Cards</h3><span>×10 in deck</span></div></div><div class="gcb">Each covers 2 colours. Pairs: Lt Blue/Brown, Pink/Orange, Red/Yellow, Green/Blue, Railroad/Utility.<div class="gtip">💡 More properties of that colour = more rent.</div></div></div>`}
+function jsnSkip() {
+  ge("jov").classList.remove("on");
+  if (_jn) { var cb = _jn; _jy = null; _jn = null; cb(); }
 }
 
-function startGame(){
-  document.getElementById("win-ov").classList.remove("on");
-  initGame();showScr("pg-game");
-  G.phase="draw";G.drawsDone=0;G.playsLeft=3;
+// ── DEBT CHIP — give 1 hand card to creditor ─────────────────────────────
+function debtPayCard(debtor, creditor, cb) {
+  if (debtor === me()) {
+    // Human must pick a card to give
+    if (!me().hand.length) { cb(); return; }
+    ge("dccred").textContent = creditor.name;
+    ge("dcmsg").innerHTML = "You have a Debt Chip &#128480; &#8212; pick 1 card from your hand to give to <b>" + creditor.name + "</b>.";
+    var el = ge("dchand"); el.innerHTML = "";
+    for (var i = 0; i < me().hand.length; i++) {
+      (function(idx) {
+        var div = document.createElement("div");
+        div.innerHTML = cardH(me().hand[idx], idx, false, false);
+        div.style.cursor = "pointer";
+        div.addEventListener("click", function() {
+          var given = me().hand.splice(idx, 1)[0];
+          creditor.hand.push(given);
+          ge("dcov").style.display = "none";
+          toast("You gave " + given.name + " to " + creditor.name + " (Debt Chip paid)");
+          renderAll(); cb();
+        });
+        el.appendChild(div);
+      })(i);
+    }
+    ge("dcov").style.display = "flex";
+  } else {
+    // AI gives cheapest card in hand
+    if (!debtor.hand.length) { cb(); return; }
+    debtor.hand.sort(function(a, b) { return a.v - b.v; });
+    var given2 = debtor.hand.shift();
+    creditor.hand.push(given2);
+    toast(debtor.name + " gave " + given2.name + " to " + creditor.name + " (Debt Chip)");
+    renderAll(); cb();
+  }
+}
+
+// ── AI ────────────────────────────────────────────────────────────────────
+function aiTurn() {
+  var actor = cur();
+  // No Mercy: draw 3 if holding a debt chip; also pay chip before playing
+  var drawAmt = (G.mode === "nomercy" && actor.debtTo) ? 3 : 2;
+  drawN(actor, actor.hand.length === 0 ? 5 : drawAmt);
   renderAll();
-  toast("5 cards dealt! Tap the draw pile to draw 2 cards");
+  // No Mercy: pay debt chip before playing
+  function startPlaying() {
+    var plays = 0;
+    function next() {
+      if (plays >= 3 || !actor.hand.length) { aiEnd(actor); return; }
+      var card = aiBest(actor); if (!card) { aiEnd(actor); return; }
+      plays++;
+      var k = [];
+      for (var i = 0; i < actor.hand.length; i++) if (actor.hand[i].id !== card.id) k.push(actor.hand[i]);
+      actor.hand = k;
+      setTimeout(function() { doPlay(actor, card, function() { if (!checkWin(actor)) setTimeout(next, 650); }); }, 520);
+    }
+    setTimeout(next, 420);
+  }
+  if (G.mode === "nomercy" && actor.debtTo) {
+    var cred = actor.debtTo; actor.debtTo = null;
+    setTimeout(function() { debtPayCard(actor, cred, startPlaying); }, 400);
+  } else {
+    startPlaying();
+  }
 }
-loadTab("action");
+
+function aiEnd(actor) {
+  if (actor.hand.length > 7) {
+    actor.hand.sort(function(a, b) { return a.v - b.v; });
+    var rem = actor.hand.splice(0, actor.hand.length - 7);
+    for (var i = 0; i < rem.length; i++) G.disc.push(rem[i]);
+  }
+  renderAll(); setTimeout(nextTurn, 520);
+}
+
+function aiBestCol(actor, card) {
+  var cols = card.isMulti ? Object.keys(COLS) : card.cols, best = cols[0];
+  for (var i = 1; i < cols.length; i++) if ((pc(actor, cols[i]) / COLS[cols[i]].need) > (pc(actor, best) / COLS[best].need)) best = cols[i];
+  return best;
+}
+
+function aiBest(actor) {
+  var h = actor.hand, oth = others(actor), i, j;
+  for (i = 0; i < h.length; i++) if (h[i].t === "prop" && pc(actor, h[i].col) + 1 >= COLS[h[i].col].need) return h[i];
+  for (i = 0; i < h.length; i++) if (h[i].name === "Deal Breaker") { for (j = 0; j < oth.length; j++) if (allSets(oth[j]).length) return h[i]; }
+  for (i = 0; i < h.length; i++) if (h[i].t === "rent") { var rks = h[i].isWild ? Object.keys(actor.props) : h[i].cols; for (j = 0; j < rks.length; j++) if (actor.props[rks[j]] && actor.props[rks[j]].length) return h[i]; }
+  // No Mercy: Double Rent when has properties
+  if (G.mode === "nomercy") {
+    for (i = 0; i < h.length; i++) if (h[i].name === "Double Rent" && Object.keys(actor.props).length) return h[i];
+    // Unfair Trade when opponent has more bank
+    for (i = 0; i < h.length; i++) if (h[i].name === "Unfair Trade" && actor.bank > 0) {
+      for (j = 0; j < oth.length; j++) if (oth[j].bank > actor.bank) return h[i];
+    }
+  }
+  for (i = 0; i < h.length; i++) if (h[i].name === "Sly Deal") { for (j = 0; j < oth.length; j++) if (stealable(oth[j]).length) return h[i]; }
+  for (i = 0; i < h.length; i++) if (h[i].name === "Pass Go" && actor.hand.length < 4) return h[i];
+  for (i = 0; i < h.length; i++) if (h[i].t === "prop" || h[i].t === "wild") return h[i];
+  for (i = 0; i < h.length; i++) if (h[i].name === "Its My Birthday" || h[i].name === "Debt Collector") return h[i];
+  for (i = 0; i < h.length; i++) if (h[i].name === "Pass Go") return h[i];
+  for (i = 0; i < h.length; i++) if (h[i].t === "money") return h[i];
+  return null;
+}
+
+// ── WIN ───────────────────────────────────────────────────────────────────
+function checkWin(p) {
+  if (allSets(p).length >= 3) {
+    G.phase = "over";
+    ge("wi").innerHTML  = (p === me()) ? "&#127942;" : "&#128542;";
+    ge("wt").textContent = (p === me()) ? "YOU WIN!" : p.name + " WINS!";
+    ge("ws").textContent = (p === me()) ? "You collected 3 complete sets! Well played!" : p.name + " collected 3 sets first. Better luck next time!";
+    ge("wov").classList.add("on"); return true;
+  }
+  return false;
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────
+function openM()  { ge("modal").classList.add("on"); }
+function closeM() { ge("modal").classList.remove("on"); }
+
+function buildM(title, items, cancel) {
+  ge("mtit").innerHTML = title;
+  var body = ge("mbdy"); body.innerHTML = "";
+  for (var i = 0; i < items.length; i++) {
+    (function(item) {
+      var b = document.createElement("button"); b.className = "mb";
+      if (item.style) b.setAttribute("style", item.style);
+      b.innerHTML = "<h4>" + item.label + "</h4>" + (item.sub ? "<p>" + item.sub + "</p>" : "");
+      b.addEventListener("click", function() { closeM(); item.cb(); });
+      body.appendChild(b);
+    })(items[i]);
+  }
+  if (cancel) { var cx = document.createElement("button"); cx.className = "mcx"; cx.innerHTML = "Cancel"; cx.addEventListener("click", closeM); body.appendChild(cx); }
+  openM();
+}
+
+function showPropPick(title, props, cb) {
+  var items = [];
+  for (var i = 0; i < props.length; i++) {
+    (function(p) { items.push({label:p.label,sub:(p.owner?p.owner.name+" &#8212; ":"")+COLS[p.col].name,style:"border-left:4px solid "+COLS[p.col].hex,cb:function(){cb(p);}}); })(props[i]);
+  }
+  buildM(title, items, true);
+}
+
+function showSetPick(title, cols, p, cb) {
+  var items = [];
+  for (var i = 0; i < cols.length; i++) {
+    (function(col) { items.push({label:"<span style='color:"+COLS[col].hex+"'>"+COLS[col].name+"</span>",sub:pc(p,col)+" cards",style:"border-left:4px solid "+COLS[col].hex,cb:function(){cb(col);}}); })(cols[i]);
+  }
+  buildM(title, items, true);
+}
+
+function showSetMulti(title, targets, cb) {
+  var items = [];
+  for (var i = 0; i < targets.length; i++) {
+    (function(t) { items.push({label:"<span style='color:"+COLS[t.col].hex+"'>"+COLS[t.col].name+"</span>",sub:t.p.name+" &#8212; "+pc(t.p,t.col)+" cards",style:"border-left:4px solid "+COLS[t.col].hex,cb:function(){cb(t);}}); })(targets[i]);
+  }
+  buildM(title, items, true);
+}
+
+function showColorPick(opts, cb) {
+  var items = [];
+  for (var i = 0; i < opts.length; i++) {
+    (function(o) { items.push({label:o.label,style:"border-left:4px solid "+COLS[o.col].hex,cb:function(){cb(o.col);}}); })(opts[i]);
+  }
+  buildM("Charge rent for which colour?", items, true);
+}
+
+function pickColor(card, cb) {
+  var cols = card.isMulti ? Object.keys(COLS) : card.cols;
+  ge("mtit").innerHTML = "Place wildcard as which colour?";
+  var body = ge("mbdy"); body.innerHTML = '<div class="cgr"></div>';
+  var grid = body.querySelector(".cgr");
+  for (var i = 0; i < cols.length; i++) {
+    (function(col) {
+      var d = document.createElement("div"); d.className = "cbtn";
+      d.textContent = COLS[col].name; d.setAttribute("style", "background:" + COLS[col].hex);
+      d.addEventListener("click", function() { closeM(); cb(col); });
+      grid.appendChild(d);
+    })(cols[i]);
+  }
+  openM();
+}
+
+function pickTarget(opps, title, cb) {
+  var items = [];
+  for (var i = 0; i < opps.length; i++) {
+    (function(p) { items.push({label:p.name,sub:"Bank: &#163;"+p.bank+"M &#8212; Sets: "+allSets(p).length,cb:function(){cb(p);}}); })(opps[i]);
+  }
+  buildM(title, items, true);
+}
+
+// ── SCREENS ───────────────────────────────────────────────────────────────
+var _fromPage = "pg-start";
+
+function goTo(id) {
+  var all = document.querySelectorAll(".pg");
+  for (var i = 0; i < all.length; i++) all[i].classList.remove("on");
+  ge(id).classList.add("on");
+}
+
+function openRules()  { _fromPage = document.querySelector(".pg.on").id; goTo("pg-rules"); }
+function closeRules() { goTo(_fromPage); }
+function openGloss()  { _fromPage = document.querySelector(".pg.on").id; goTo("pg-gloss"); loadGloss("a"); resetGTabs("gt-a"); }
+function closeGloss() { goTo(_fromPage); }
+
+// ── GLOSSARY ──────────────────────────────────────────────────────────────
+function resetGTabs(activeId) {
+  var tabs = document.querySelectorAll(".gt");
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove("on");
+  ge(activeId).classList.add("on");
+}
+
+function loadGloss(tab) {
+  var el = ge("gbdy"), html = "", i;
+  if (tab === "a") {
+    var acts = [
+      {n:"Pass Go",ic:"&#128640;",q:"10",v:"&#163;1M",bg:"#0a1830",d:"Draw 2 extra cards from the deck straight away. Great for replenishing a thin hand.",t:"Can be banked for &#163;1M if you need cash more than cards."},
+      {n:"Its My Birthday",ic:"&#127874;",q:"3",v:"&#163;2M",bg:"#38180a",d:"All other players must pay you &#163;2M each. Each opponent decides individually whether to block with Just Say No.",t:"Most effective in a 3-4 player game where the total payout is bigger."},
+      {n:"Debt Collector",ic:"&#128188;",q:"3",v:"&#163;3M",bg:"#181808",d:"Choose one player to pay you &#163;5M from their bank, then properties if needed.",t:"Target whoever has the most in their bank."},
+      {n:"Sly Deal",ic:"&#127919;",q:"3",v:"&#163;3M",bg:"#081818",d:"Steal 1 property from any incomplete set. Cannot steal from a complete set.",t:"Use this to set back an opponent close to completing a set."},
+      {n:"Force Deal",ic:"&#128260;",q:"3",v:"&#163;3M",bg:"#180a18",d:"Swap one of your properties for one of your opponent's. Neither can be from a complete set.",t:"Trade away a colour you don't need for one that gets you closer to a set."},
+      {n:"Deal Breaker",ic:"&#128165;",q:"2",v:"&#163;5M",bg:"#280808",d:"Steal an ENTIRE complete set from any opponent. The single most powerful card.",t:"Your opponent will likely have a Just Say No ready. Time it carefully."},
+      {n:"Just Say No",ic:"&#128683;",q:"3",v:"&#163;4M",bg:"#280606",d:"Cancel any action against you &#8212; Deal Breaker, Sly Deal, Force Deal, Debt Collector, Birthday, Rent. Does NOT use a play. Can cancel another Just Say No.",t:"In this app the game fully pauses with a popup so you decide with no time pressure."},
+      {n:"Double the Rent",ic:"&#10006;",q:"2",v:"&#163;1M",bg:"#0a280a",d:"Play first, then play a rent card. Both cost 1 play. The following rent is doubled. Just Say No cancels this card specifically, not the rent card.",t:"Best combined with a full Blue or Green set with house and hotel."},
+      {n:"House",ic:"&#127968;",q:"3",v:"&#163;3M",bg:"#0a1810",d:"Add to any COMPLETE set except Railroad or Utility. Adds &#163;3M to rent charges for that set.",t:"Bank value &#163;3M &#8212; but worth more if you use it for rent."},
+      {n:"Hotel",ic:"&#127976;",q:"2",v:"&#163;4M",bg:"#182a10",d:"Add to a complete set that already has a House. Adds another &#163;4M to rent. One house and one hotel per set maximum.",t:"Full Blue set + house + hotel = &#163;15M rent!"}
+    ];
+    for (i = 0; i < acts.length; i++) {
+      var a = acts[i];
+      html += '<div class="gc"><div class="gch" style="background:' + a.bg + '40"><div class="gic" style="background:' + a.bg + '">' + a.ic + '</div><div><h3>' + a.n + '</h3><span>Action card &#215;' + a.q + ' &#8212; Bank value ' + a.v + '</span></div></div><div class="gcb">' + a.d + '<div class="gtip">&#128161; ' + a.t + '</div></div></div>';
+    }
+  } else if (tab === "p") {
+    html += '<div class="pgr">';
+    var ck = Object.keys(COLS);
+    for (i = 0; i < ck.length; i++) {
+      var c = COLS[ck[i]];
+      html += '<div class="pe" style="background:' + c.hex + '22;border:1px solid ' + c.hex + '44"><h4 style="color:' + c.hex + '">' + c.name + '</h4><p>' + c.need + ' to complete</p><p>Rent: &#163;' + c.rent.join("M / &#163;") + 'M</p></div>';
+    }
+    html += '</div>';
+    html += '<div class="gc" style="margin-top:10px"><div class="gch"><div class="gic" style="background:#1a2a3a">&#127968;</div><div><h3>How Properties Work</h3><span>The path to victory</span></div></div><div class="gcb">Place property cards face-up on the table grouped by colour. More cards of the same colour means higher rent. When a set is complete it shows &#11088;. Win by completing 3 different-colour sets.<div class="gtip">&#128161; Houses (+&#163;3M) and Hotels (+&#163;4M) can only go on complete sets. Railroad and Utility cannot have houses or hotels.</div></div></div>';
+  } else if (tab === "w") {
+    html = '<div class="gc"><div class="gch"><div class="gic" style="background:linear-gradient(135deg,#D83030,#1848D8)">&#127183;</div><div><h3>Multi-Colour Wildcard</h3><span>&#215;2 in deck &#8212; Worth &#163;0M</span></div></div><div class="gcb">Can be placed as <strong>any colour</strong>. You can reassign it on a future turn for 1 play. Worth &#163;0M so cannot pay debts &#8212; but CAN be stolen.<div class="gtip">&#128161; Use this to complete whichever set you are closest to finishing.</div></div></div>';
+    html += '<div class="gc"><div class="gch"><div class="gic" style="background:linear-gradient(135deg,#E055A0,#F08030)">&#127820;</div><div><h3>Two-Colour Wildcards</h3><span>&#215;9 in deck &#8212; Worth &#163;0M</span></div></div><div class="gcb">Each can be placed as one of two specific colours. The 9 pairs are:<ul style="margin-top:8px;padding-left:16px;line-height:2.3"><li>Lt Blue / Brown &#215;1</li><li>Lt Blue / Railroad &#215;1</li><li>Pink / Orange &#215;2</li><li>Red / Yellow &#215;2</li><li>Blue / Green &#215;1</li><li>Green / Railroad &#215;1</li><li>Railroad / Utility &#215;1</li></ul><div class="gtip">&#128161; You choose the colour when placing. You can reassign it later for 1 play.</div></div></div>';
+  } else if (tab === "m") {
+    html = '<div class="gc"><div class="gch"><div class="gic" style="background:#091f0e">&#128176;</div><div><h3>Money Cards</h3><span>20 cards in deck</span></div></div><div class="gcb">Place face-up in your bank to pay rent and other charges.<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0">';
+    var mv = [[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]];
+    for (i = 0; i < mv.length; i++) html += '<div style="background:#133018;border-radius:8px;padding:8px;text-align:center"><div style="font-family:\'Bebas Neue\',cursive;font-size:20px;color:#6ee7b7">&#163;' + mv[i][0] + 'M</div><div style="font-size:11px;color:#4a8a4a">&#215;' + mv[i][1] + '</div></div>';
+    html += '</div>Action and rent cards can also be banked for their printed value &#8212; but permanently lose their special ability once banked.<div class="gtip">&#128161; Pay debts from bank first, then hand over property cards. No change given. Cannot pay from hand.</div></div></div>';
+  } else if (tab === "r") {
+    html = '<div class="gc"><div class="gch"><div class="gic" style="background:linear-gradient(135deg,#D83030,#1848D8)">&#128184;</div><div><h3>Wild Rent</h3><span>&#215;3 in deck &#8212; Highest value rent</span></div></div><div class="gcb">Charge rent for ANY colour you own &#8212; pick whichever earns the most. All opponents pay.<div class="gtip">&#128161; Combine with Double the Rent on a full Blue set with house and hotel for maximum damage.</div></div></div>';
+    html += '<div class="gc"><div class="gch"><div class="gic" style="background:#1e0a38">&#128184;</div><div><h3>Colour Rent Cards</h3><span>&#215;10 in deck &#8212; 5 pairs</span></div></div><div class="gcb">Each covers 2 specific colours. Charge for whichever of those two you own. The 5 pairs:<ul style="margin-top:8px;padding-left:16px;line-height:2.2"><li>Lt Blue / Brown &#215;2</li><li>Pink / Orange &#215;2</li><li>Red / Yellow &#215;2</li><li>Blue / Green &#215;2</li><li>Railroad / Utility &#215;2</li></ul><div class="gtip">&#128161; Rent increases with each property of that colour. A complete set with house and hotel charges the maximum.</div></div></div>';
+  } else if (tab === "n") {
+    html  = '<div style="background:#7f1d1d33;border:1px solid #ef4444;border-radius:10px;padding:10px 12px;margin-bottom:10px;color:#fca5a5;font-size:12px">&#128480; <b>No Mercy mode</b> &#8212; 120-card deck with 3 extra mechanic cards and rule changes. Select on the start screen.</div>';
+    html += '<div class="gc"><div class="gch"><div class="gic" style="background:#78350f">&#128480;</div><div><h3>Debt Chip</h3><span>Mechanic &#8212; No Mercy only</span></div></div><div class="gcb">If a player cannot pay a debt in full they receive a <b>Debt Chip</b>. On their next turn they draw <b>3 cards</b> instead of 2, then must hand 1 card from their hand directly to the creditor before playing.<div class="gtip">&#128161; Only one Debt Chip per player at a time. The chip is cleared once the card is handed over.</div></div></div>';
+    html += '<div class="gc"><div class="gch"><div class="gic" style="background:#2d1f0a">&#128165;&#128184;</div><div><h3>Double Rent</h3><span>Action &#215;3 &#8212; Bank value &#163;1M</span></div></div><div class="gcb">Choose one colour. ALL other players must immediately pay you <b>double</b> the standard rent for every property of that colour you own. Just Say No can block individually.<div class="gtip">&#128161; Most devastating on full Blue or Green sets. Unlike classic Double the Rent, this hits every opponent at once.</div></div></div>';
+    html += '<div class="gc"><div class="gch"><div class="gic" style="background:#0a1a2a">&#127317;</div><div><h3>Unfair Trade</h3><span>Action &#215;3 &#8212; Bank value &#163;4M</span></div></div><div class="gcb">Swap your entire <b>bank</b> with one other player\'s bank. The target can block with Just Say No. <b>Cannot be played if your own bank is empty.</b><div class="gtip">&#128161; Target the richest opponent. If they block it with Just Say No, you can counter with your own Just Say No.</div></div></div>';
+    html += '<div class="gc"><div class="gch"><div class="gic" style="background:#0a2010">&#9654;</div><div><h3>Setup Difference</h3><span>Rule change</span></div></div><div class="gcb">In No Mercy mode each player is dealt <b>5 cards</b>, then draws <b>2 more</b> for a starting hand of 7 cards (vs 5 in Classic). This is automatic when you start a No Mercy game.<div class="gtip">&#128161; With 7 cards you\'ll usually have rent and property cards on the very first turn &#8212; plays faster and more aggressively.</div></div></div>';
+  }
+  el.innerHTML = html;
+}
+
+// ── START ─────────────────────────────────────────────────────────────────
+function startGame() {
+  ge("wov").classList.remove("on");
+  init(); goTo("pg-game");
+  G.phase = "draw"; G.drawn = 0; G.plays = 3;
+  // Show/hide No Mercy badge in header
+  ge("nm-badge").style.display = (G.mode === "nomercy") ? "inline-block" : "none";
+  // Show NM quick-rule bullet
+  ge("qr-nm").style.display = (G.mode === "nomercy") ? "list-item" : "none";
+  renderAll();
+  toast(G.mode === "nomercy" ? "NO MERCY 🚨 7 cards dealt! Draw to start." : "5 cards dealt! Tap the draw pile to start");
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────────────────
+// Mode picker
+ge("mc").addEventListener("click", function() {
+  gameMode = "classic";
+  ge("mc").classList.add("on");
+  ge("mnm").classList.remove("on"); ge("mnm").classList.remove("on-nm");
+});
+ge("mnm").addEventListener("click", function() {
+  gameMode = "nomercy";
+  ge("mnm").classList.add("on-nm");
+  ge("mc").classList.remove("on");
+});
+ge("ai1").addEventListener("click", function() { numAI = 1; ge("ai1").classList.add("on"); ge("ai2").classList.remove("on"); ge("ai3").classList.remove("on"); });
+ge("ai2").addEventListener("click", function() { numAI = 2; ge("ai2").classList.add("on"); ge("ai1").classList.remove("on"); ge("ai3").classList.remove("on"); });
+ge("ai3").addEventListener("click", function() { numAI = 3; ge("ai3").classList.add("on"); ge("ai1").classList.remove("on"); ge("ai2").classList.remove("on"); });
+ge("btn-deal").addEventListener("click", startGame);
+ge("btn-rs").addEventListener("click", openRules);
+ge("btn-gs").addEventListener("click", openGloss);
+ge("gbg").addEventListener("click", openGloss);
+ge("gbr").addEventListener("click", openRules);
+ge("gbh").addEventListener("click", function() { goTo("pg-start"); });
+ge("dpile").addEventListener("click", playerDraw);
+ge("abp").addEventListener("click", playSel);
+ge("abb").addEventListener("click", bankSel);
+ge("abe").addEventListener("click", endTurn);
+ge("abd").addEventListener("click", confirmDiscard);
+ge("abmw").addEventListener("click", moveWild);
+ge("rx").addEventListener("click", closeRules);
+ge("gx").addEventListener("click", closeGloss);
+ge("jy").addEventListener("click", jsnUse);
+ge("jn").addEventListener("click", jsnSkip);
+ge("btn-again").addEventListener("click", startGame);
+ge("btn-menu").addEventListener("click", function() { goTo("pg-start"); });
+ge("modal").addEventListener("click", function(e) { if (e.target === ge("modal")) closeM(); });
+ge("gt-a").addEventListener("click", function() { loadGloss("a"); resetGTabs("gt-a"); });
+ge("gt-p").addEventListener("click", function() { loadGloss("p"); resetGTabs("gt-p"); });
+ge("gt-w").addEventListener("click", function() { loadGloss("w"); resetGTabs("gt-w"); });
+ge("gt-m").addEventListener("click", function() { loadGloss("m"); resetGTabs("gt-m"); });
+ge("gt-r").addEventListener("click", function() { loadGloss("r"); resetGTabs("gt-r"); });
+ge("gt-n").addEventListener("click", function() { loadGloss("n"); resetGTabs("gt-n"); });
+
+loadGloss("a");
+
+}); // end window.load
 </script>
 </body>
 </html>
