@@ -276,6 +276,9 @@ button{font-family:inherit;color:inherit}
 .jy{background:var(--red);border:none;color:#fff;padding:.85rem;border-radius:calc(var(--rad)*.7);font-weight:800;font-size:1.1rem;cursor:pointer;width:100%;margin-bottom:.5rem;display:block;animation:gl 1s ease-in-out infinite}
 @keyframes gl{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}50%{box-shadow:0 0 0 12px rgba(239,68,68,0)}}
 .jn{background:var(--s2);border:1.5px solid var(--bd);color:var(--tx);padding:.75rem;border-radius:calc(var(--rad)*.7);font-weight:700;font-size:1rem;cursor:pointer;width:100%;display:block}
+.dp-prop-btn{background:var(--s2);border:2px solid var(--bd);border-radius:8px;padding:.3rem .55rem;font-size:.8rem;cursor:pointer;color:var(--tx);transition:transform .1s}
+.dp-prop-btn.dp-sel{transform:scale(1.05)}
+.dp-prop-btn:active{transform:scale(.96)}
 #dchand .card{margin-top:.8em}
 
 .wov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:1rem;text-align:center;padding:2rem}
@@ -644,6 +647,30 @@ button{font-family:inherit;color:inherit}
   </div>
 </div>
 
+<!-- DEBT PICKER -->
+<div class="jov" id="dpov">
+  <div class="jbox" style="max-height:90vh;overflow-y:auto;width:min(420px,96vw)">
+    <h2>&#128176; PAY DEBT</h2>
+    <p id="dp-msg" style="margin:.4rem 0 .8rem;font-size:.95rem"></p>
+    <div id="dp-tally" style="background:var(--s2);border-radius:10px;padding:.6rem .9rem;margin-bottom:.8rem;font-weight:700;font-size:1rem"></div>
+    <div id="dp-bank-sect" style="margin-bottom:.8rem">
+      <div style="font-size:.85rem;opacity:.7;margin-bottom:.3rem">&#128176; From bank</div>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <button class="btn-o" id="dp-bank-minus" style="width:2.2rem;height:2.2rem;padding:0;font-size:1.1rem">&#8722;</button>
+        <span id="dp-bank-val" style="font-size:1.2rem;font-weight:700;min-width:3rem;text-align:center"></span>
+        <button class="btn-g" id="dp-bank-plus" style="width:2.2rem;height:2.2rem;padding:0;font-size:1.1rem">&#43;</button>
+        <span style="font-size:.82rem;opacity:.65">(max <span id="dp-bank-max"></span>)</span>
+      </div>
+    </div>
+    <div id="dp-props-sect">
+      <div style="font-size:.85rem;opacity:.7;margin-bottom:.4rem">&#127968; Properties (tap to offer)</div>
+      <div id="dp-props-list" style="display:flex;flex-wrap:wrap;gap:.45rem"></div>
+    </div>
+    <button class="btn-g" id="dp-confirm" style="margin-top:1rem;width:100%;font-size:1rem" disabled>&#10003; Confirm Payment</button>
+    <div id="dp-note" style="font-size:.78rem;opacity:.6;margin-top:.5rem;text-align:center"></div>
+  </div>
+</div>
+
 <!-- STATS -->
 <div id="pg-stats" class="pg">
   <div class="phd"><h2>&#127942; STATS &amp; RECORDS</h2><button class="hb" id="statx">&#10005;</button></div>
@@ -993,6 +1020,125 @@ function payUp(payer, payee, amt) {
     }
   }
   return paid;
+}
+
+// Manual debt payment picker for human player
+function payUpManual(payer, payee, amt, cb) {
+  var ov = ge("dpov");
+  var bankAmt = 0; // how much the player is offering from bank
+  var selProps = []; // {col, idx, card, val} property cards offered
+
+  function totalOffered() {
+    var t = bankAmt;
+    for (var i = 0; i < selProps.length; i++) t += selProps[i].val;
+    return t;
+  }
+
+  function allGone() {
+    // player has nothing more to offer
+    var hasBank = payer.bank > 0;
+    if (hasBank) return false;
+    var cols = Object.keys(payer.props);
+    for (var c = 0; c < cols.length; c++) if (payer.props[cols[c]] && payer.props[cols[c]].length) return false;
+    return true;
+  }
+
+  function updateUI() {
+    var offered = totalOffered();
+    var owes = amt;
+    var enough = offered >= owes;
+    var bankMax = Math.min(payer.bank, owes - totalOfferedFromProps());
+    if (bankMax < 0) bankMax = 0;
+
+    ge("dp-tally").innerHTML =
+      "Offered: &#163;" + offered + "M &nbsp;|&nbsp; Owe: &#163;" + owes + "M" +
+      (enough ? ' &nbsp;<span style="color:#27ae60">&#10003; Enough!</span>' : ' &nbsp;<span style="color:#e74c3c">Still need: &#163;' + (owes - offered) + "M</span>");
+
+    ge("dp-bank-val").textContent = "£" + bankAmt + "M";
+    ge("dp-bank-max").textContent = "£" + payer.bank + "M";
+    ge("dp-bank-minus").disabled = (bankAmt <= 0);
+    ge("dp-bank-plus").disabled = (bankAmt >= payer.bank);
+
+    // render properties
+    var propHtml = "";
+    var cols = Object.keys(payer.props);
+    var hasProp = false;
+    for (var c = 0; c < cols.length; c++) {
+      var col = cols[c], cards = payer.props[col];
+      if (!cards || !cards.length) continue;
+      for (var j = 0; j < cards.length; j++) {
+        hasProp = true;
+        var card = cards[j];
+        var isSel = false;
+        for (var s = 0; s < selProps.length; s++) if (selProps[s].col === col && selProps[s].idx === j) { isSel = true; break; }
+        propHtml += '<button class="dp-prop-btn' + (isSel ? " dp-sel" : "") + '" data-col="' + col + '" data-j="' + j + '" style="background:' + (COLS[col] ? COLS[col].hex : "#888") + '22;border:2px solid ' + (isSel ? "#27ae60" : (COLS[col] ? COLS[col].hex : "#888")) + ';border-radius:8px;padding:.3rem .55rem;font-size:.8rem;cursor:pointer;color:var(--tx)">' +
+          (isSel ? "&#10003; " : "") + card.name + '<br><span style="font-size:.72rem;opacity:.75">&#163;' + (card.v || 1) + 'M</span></button>';
+      }
+    }
+    ge("dp-props-list").innerHTML = hasProp ? propHtml : '<span style="opacity:.5;font-size:.85rem">No properties</span>';
+    ge("dp-props-sect").style.display = hasProp ? "" : "none";
+
+    var canConfirm = enough || (bankAmt >= payer.bank && !hasProp);
+    // If truly bankrupt (nothing left to give), enable confirm too
+    if (payer.bank === 0 && !hasProp) canConfirm = true;
+    ge("dp-confirm").disabled = !canConfirm;
+
+    var note = "";
+    if (!enough && canConfirm) note = "You can't cover the full debt — giving everything you have.";
+    ge("dp-note").textContent = note;
+
+    // re-attach prop listeners
+    var btns = ge("dp-props-list").querySelectorAll(".dp-prop-btn");
+    for (var bi = 0; bi < btns.length; bi++) {
+      (function(btn) {
+        btn.addEventListener("click", function() {
+          var col2 = btn.getAttribute("data-col"), j2 = parseInt(btn.getAttribute("data-j"), 10);
+          var found = -1;
+          for (var si = 0; si < selProps.length; si++) if (selProps[si].col === col2 && selProps[si].idx === j2) { found = si; break; }
+          if (found >= 0) { selProps.splice(found, 1); }
+          else {
+            var card2 = payer.props[col2][j2];
+            selProps.push({col:col2, idx:j2, card:card2, val: card2.v || 1});
+          }
+          updateUI();
+        });
+      })(btns[bi]);
+    }
+  }
+
+  function totalOfferedFromProps() {
+    var t = 0; for (var i = 0; i < selProps.length; i++) t += selProps[i].val; return t;
+  }
+
+  ge("dp-msg").innerHTML = payee.name + " demands &#163;" + amt + "M &nbsp;|&nbsp; Your bank: &#163;" + payer.bank + "M";
+  ge("dp-bank-sect").style.display = (payer.bank > 0) ? "" : "none";
+
+  ov.classList.add("on");
+  updateUI();
+
+  ge("dp-bank-minus").onclick = function() { if (bankAmt > 0) { bankAmt--; updateUI(); } };
+  ge("dp-bank-plus").onclick  = function() { if (bankAmt < payer.bank) { bankAmt++; updateUI(); } };
+
+  ge("dp-confirm").onclick = function() {
+    ov.classList.remove("on");
+    var paid = 0;
+    // Pay from bank
+    payer.bank -= bankAmt; payee.bank += bankAmt; paid += bankAmt;
+    // Pay properties (work backwards through indices to keep order safe)
+    selProps.sort(function(a,b){return b.idx - a.idx;});
+    for (var i = 0; i < selProps.length; i++) {
+      var sp = selProps[i];
+      var propArr = payer.props[sp.col];
+      if (!propArr) continue;
+      var removed = propArr.splice(sp.idx, 1)[0];
+      if (!propArr.length) { delete payer.props[sp.col]; delete payer.houses[sp.col]; delete payer.hotels[sp.col]; }
+      else if (!setDone(payer, sp.col)) { delete payer.houses[sp.col]; delete payer.hotels[sp.col]; }
+      payee.bank += sp.val; paid += sp.val;
+    }
+    // reset state
+    bankAmt = 0; selProps = [];
+    cb(paid);
+  };
 }
 
 function others(actor) {
@@ -1348,7 +1494,7 @@ function doAction(actor, card, im, cb) {
       }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
     } else {
       jsnMe(actor.name + " played Debt Collector &#8212; pay &#163;5M!",
-        function() { var p = payUp(me(), actor, 5); toast("You paid &#163;" + p + "M"); renderAll(); cb(); },
+        function() { payUpManual(me(), actor, 5, function(p) { toast("You paid &#163;" + p + "M"); renderAll(); cb(); }); },
         function() { toast("You blocked Debt Collector!"); cb(); });
     }
     return;
@@ -1547,7 +1693,7 @@ function chargeAll(actor, targets, amt, im, msg, cb) {
     var target = targets[i++];
     if (target === me()) {
       jsnMe(msg,
-        function() { var p = payUp(target, actor, amt); toast("You paid &#163;" + p + "M"); renderAll(); next(); },
+        function() { payUpManual(me(), actor, amt, function(p) { toast("You paid &#163;" + p + "M"); renderAll(); next(); }); },
         function() { toast("You blocked with Just Say No!"); next(); });
     } else {
       jsnAI(target, msg,
@@ -1564,7 +1710,7 @@ function jsnMe(msg, accept, decline) {
   for (var i = 0; i < me().hand.length; i++) if (me().hand[i].name === "Just Say No") { hasJ = true; break; }
   if (hasJ) {
     _jy = decline; _jn = accept;
-    ge("jmsg").innerHTML = msg + "<br><b>You have a Just Say No card!</b>";
+    ge("jmsg").innerHTML = msg + "<br><b>You have a Just Say No card!</b><br><span style='font-size:.9rem;opacity:.75'>&#128176; Your bank: &#163;" + me().bank + "M</span>";
     ge("jov").classList.add("on");
   } else { accept(); }
 }
