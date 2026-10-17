@@ -1051,11 +1051,11 @@ function payUpManual(payer, payee, amt, cb) {
     if (bankMax < 0) bankMax = 0;
 
     ge("dp-tally").innerHTML =
-      "Offered: &#163;" + offered + "M &nbsp;|&nbsp; Owe: &#163;" + owes + "M" +
-      (enough ? ' &nbsp;<span style="color:#27ae60">&#10003; Enough!</span>' : ' &nbsp;<span style="color:#e74c3c">Still need: &#163;' + (owes - offered) + "M</span>");
+      "Offered: " + fmtAmt(offered) + " &nbsp;|&nbsp; Owe: " + fmtAmt(owes) +
+      (enough ? ' &nbsp;<span style="color:#27ae60">&#10003; Enough!</span>' : ' &nbsp;<span style="color:#e74c3c">Still need: " + fmtAmt(owes - offered) + "</span>");
 
-    ge("dp-bank-val").textContent = "£" + bankAmt + "M";
-    ge("dp-bank-max").textContent = "£" + payer.bank + "M";
+    ge("dp-bank-val").innerHTML = fmtAmt(bankAmt);
+    ge("dp-bank-max").innerHTML = fmtAmt(payer.bank);
     ge("dp-bank-minus").disabled = (bankAmt <= 0);
     ge("dp-bank-plus").disabled = (bankAmt >= payer.bank);
 
@@ -1072,7 +1072,7 @@ function payUpManual(payer, payee, amt, cb) {
         var isSel = false;
         for (var s = 0; s < selProps.length; s++) if (selProps[s].col === col && selProps[s].idx === j) { isSel = true; break; }
         propHtml += '<button class="dp-prop-btn' + (isSel ? " dp-sel" : "") + '" data-col="' + col + '" data-j="' + j + '" style="background:' + (COLS[col] ? COLS[col].hex : "#888") + '22;border:2px solid ' + (isSel ? "#27ae60" : (COLS[col] ? COLS[col].hex : "#888")) + ';border-radius:8px;padding:.3rem .55rem;font-size:.8rem;cursor:pointer;color:var(--tx)">' +
-          (isSel ? "&#10003; " : "") + card.name + '<br><span style="font-size:.72rem;opacity:.75">&#163;' + (card.v || 1) + 'M</span></button>';
+          (isSel ? "&#10003; " : "") + card.name + '<br><span style="font-size:.72rem;opacity:.75">' + fmtAmt(card.v || 1) + '</span></button>';
       }
     }
     ge("dp-props-list").innerHTML = hasProp ? propHtml : '<span style="opacity:.5;font-size:.85rem">No properties</span>';
@@ -1110,7 +1110,7 @@ function payUpManual(payer, payee, amt, cb) {
     var t = 0; for (var i = 0; i < selProps.length; i++) t += selProps[i].val; return t;
   }
 
-  ge("dp-msg").innerHTML = payee.name + " demands &#163;" + amt + "M &nbsp;|&nbsp; Your bank: &#163;" + payer.bank + "M";
+  ge("dp-msg").innerHTML = payee.name + " demands " + fmtAmt(amt) + " &nbsp;|&nbsp; Your bank: " + fmtAmt(payer.bank);
   ge("dp-bank-sect").style.display = (payer.bank > 0) ? "" : "none";
 
   ov.classList.add("on");
@@ -1148,6 +1148,9 @@ function others(actor) {
 }
 
 function ge(id) { return document.getElementById(id); }
+function cur() { return gameTheme === "op" ? "&#x1F4B0;" : "&#163;"; } // 💰 Berry vs £
+function curSuf() { return gameTheme === "op" ? "B" : "M"; } // Berries vs Millions
+function fmtAmt(n) { return gameTheme === "op" ? n + "B" : "&#163;" + n + "M"; } // e.g. 5B or £5M
 
 function toast(msg) {
   var t = ge("toast"); t.innerHTML = msg; t.classList.add("on");
@@ -1174,7 +1177,7 @@ function cardH(card, idx, sel, mrk) {
   if (card.t === "money") {
     h  = '<div class="' + base + ' c-money" data-i="' + idx + '" style="--tone:' + (MONEY_TONE[card.v] || "#efe2bf") + '">';
     h += '<div class="c-val">' + card.v + 'M</div>' + infoBtn(card.id);
-    h += '<div class="c-inner"><div class="m-big">&#163;' + card.v + 'M</div><div class="m-sub">MONEY</div></div></div>';
+    h += '<div class="c-inner"><div class="m-big">' + fmtAmt(card.v) + '</div><div class="m-sub">MONEY</div></div></div>';
   } else if (card.t === "action") {
     var isNM = (card.name === "Double Rent" || card.name === "Unfair Trade");
     var ex = card.name === "Just Say No" ? " c-jsn" : (isNM ? " c-nm" : "");
@@ -1194,7 +1197,7 @@ function cardH(card, idx, sel, mrk) {
   } else if (card.t === "prop") {
     var c = COLS[card.col], rows = "";
     for (i = 0; i < c.rent.length; i++) {
-      rows += '<div class="p-row' + (i + 1 === c.need ? " full" : "") + '"><span>' + (i + 1) + (i ? " cards" : " card") + '</span><span>&#163;' + c.rent[i] + 'M</span></div>';
+      rows += '<div class="p-row' + (i + 1 === c.need ? " full" : "") + '"><span>' + (i + 1) + (i ? " cards" : " card") + '</span><span>' + fmtAmt(c.rent[i]) + '</span></div>';
     }
     h  = '<div class="' + base + ' c-prop' + (LITE_COLS[card.col] ? " lite" : "") + '" data-i="' + idx + '" style="--pc:' + c.hex + '">';
     h += '<div class="c-val">' + card.v + 'M</div>' + infoBtn(card.id, card.col);
@@ -1218,7 +1221,7 @@ function mpH(card, p, col, ex) {
   var cls = "mc" + (LITE_COLS[col] ? " lite" : "") + (ex && ex.sel ? " wsel" : "");
   var h = '<div class="' + cls + '"' + (ex && ex.attrs ? ex.attrs : "") + ' data-cid="' + card.id + '" data-col="' + col + '" style="--pc:' + c.hex + '" title="' + card.name + '">';
   h += '<div class="mc-band"' + (isW ? ' style="background:' + wildBg(card) + '"' : '') + '><span>' + (isW ? "WILD" : card.name) + '</span></div>';
-  h += '<div class="mc-body"><div class="mc-v">&#163;' + (card.v || 0) + 'M</div><div class="mc-col">' + c.name + '</div></div>';
+  h += '<div class="mc-body"><div class="mc-v">' + fmtAmt(card.v || 0) + '</div><div class="mc-col">' + c.name + '</div></div>';
   h += infoBtn(card.id, col) + '</div>';
   return h;
 }
@@ -1254,7 +1257,7 @@ function renderProps(p, elid) {
       }
       html += mpH(cards[j], p, col, ex);
     }
-    html += '</div><div class="pl-rent">Rent &#163;' + rentAmt(p, col) + 'M</div></div>';
+    html += '</div><div class="pl-rent">Rent ' + fmtAmt(rentAmt(p, col)) + '</div></div>';
   }
   el.innerHTML = html;
   // Attach wildcard tap listeners for player only (unchanged behaviour)
@@ -1279,7 +1282,7 @@ function renderOpps() {
     p = G.players[i]; var isT = (G.turn === i);
     var dcBadge = (G.mode === "nomercy" && p.debtTo) ? ' <span class="dchip" title="Debt Chip held">D</span>' : '';
     html += '<div class="ob' + (isT ? " turn" : "") + '"><div class="oh"><span class="on2">' + p.name + '</span>' + dcBadge + (isT ? '<span class="badge bai">THEIR TURN</span>' : '') + '</div>';
-    html += '<div class="osr"><div class="st">Hand: <b>' + p.hand.length + '</b></div><div class="st">Bank: <b>&#163;' + p.bank + 'M</b></div><div class="st">Sets: <b>' + allSets(p).length + '/3</b></div></div>';
+    html += '<div class="osr"><div class="st">Hand: <b>' + p.hand.length + '</b></div><div class="st">Bank: <b>' + fmtAmt(p.bank) + '</b></div><div class="st">Sets: <b>' + allSets(p).length + '/3</b></div></div>';
     html += '<div id="op' + i + '" class="pr"></div></div>';
   }
   el.innerHTML = html;
@@ -1333,7 +1336,7 @@ function renderBtns() {
   ge("abb").disabled = !isp || !bankOk || G.plays <= 0;
   ge("abe").disabled = !isp;
   ge("ybdg").style.display = (isMe() && !G.discMode) ? "" : "none";
-  ge("ybk").innerHTML = "&#163;" + me().bank + "M";
+  ge("ybk").innerHTML = fmtAmt(me().bank);
   ge("yst").textContent = allSets(me()).length + "/3";
   if (G.discMode) {
     ge("abp").style.display = "none"; ge("abb").style.display = "none"; ge("abe").style.display = "none";
@@ -1407,7 +1410,7 @@ function bankSel() {
   for (var i = 0; i < me().hand.length; i++) if (i !== G.sel) k.push(me().hand[i]);
   me().hand = k; G.sel = null; G.plays--;
   me().bank += card.v; G.disc.push(card);
-  toast("Banked " + card.name + " &#8212; &#163;" + card.v + "M added"); renderAll(); checkWin(me());
+  toast("Banked " + card.name + " &#8212; " + fmtAmt(card.v) + " added"); renderAll(); checkWin(me());
 }
 
 function moveWild() {
@@ -1481,20 +1484,20 @@ function doAction(actor, card, im, cb) {
   }
 
   if (n === "Its My Birthday") {
-    if (!im) toast(actor.name + " played Its My Birthday! Everyone pays &#163;2M!");
-    chargeAll(actor, oth, 2, im, "Its My Birthday &#8212; pay &#163;2M!", cb); return;
+    if (!im) toast(actor.name + " played Its My Birthday! Everyone pays " + fmtAmt(2) + "!");
+    chargeAll(actor, oth, 2, im, "Its My Birthday &#8212; pay " + fmtAmt(2) + "!", cb); return;
   }
 
   if (n === "Debt Collector") {
     if (im) {
-      pickTarget(oth, "Debt Collector &#8212; who pays &#163;5M?", function(target) {
-        jsnAI(target, "Debt Collector &#8212; pay &#163;5M!",
-          function() { var p = payUp(target, me(), 5); toast(target.name + " paid &#163;" + p + "M"); renderAll(); checkWin(me()); cb(); },
+      pickTarget(oth, "Debt Collector &#8212; who pays " + fmtAmt(5) + "?", function(target) {
+        jsnAI(target, "Debt Collector &#8212; pay " + fmtAmt(5) + "!",
+          function() { var p = payUp(target, me(), 5); toast(target.name + " paid " + fmtAmt(p)); renderAll(); checkWin(me()); cb(); },
           function() { toast(target.name + " blocked with Just Say No!"); cb(); });
       }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
     } else {
-      jsnMe(actor.name + " played Debt Collector &#8212; pay &#163;5M!",
-        function() { payUpManual(me(), actor, 5, function(p) { toast("You paid &#163;" + p + "M"); renderAll(); cb(); }); },
+      jsnMe(actor.name + " played Debt Collector &#8212; pay " + fmtAmt(5) + "!",
+        function() { payUpManual(me(), actor, 5, function(p) { toast("You paid " + fmtAmt(p)); renderAll(); cb(); }); },
         function() { toast("You blocked Debt Collector!"); cb(); });
     }
     return;
@@ -1620,18 +1623,18 @@ function doAction(actor, card, im, cb) {
       for (var dri = 0; dri < drkeys.length; dri++) if (me().props[drkeys[dri]] && me().props[drkeys[dri]].length) drRentable.push(drkeys[dri]);
       if (!drRentable.length) { toast("No properties to charge Double Rent for"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
       var drOpts = [];
-      for (var droi = 0; droi < drRentable.length; droi++) drOpts.push({label:COLS[drRentable[droi]].name + " &#8212; &#163;" + (rentAmt(me(), drRentable[droi]) * 2) + "M each",col:drRentable[droi]});
+      for (var droi = 0; droi < drRentable.length; droi++) drOpts.push({label:COLS[drRentable[droi]].name + " &#8212; " + fmtAmt(rentAmt(me(), drRentable[droi]) * 2) + " each",col:drRentable[droi]});
       showColorPick(drOpts, function(col) {
         var amt = rentAmt(me(), col) * 2;
-        toast("DOUBLE RENT! &#163;" + amt + "M from ALL players!");
-        chargeAll(me(), others(me()), amt, true, "Double Rent &#8212; pay &#163;" + amt + "M!", cb);
+        toast("DOUBLE RENT! " + fmtAmt(amt) + " from ALL players!");
+        chargeAll(me(), others(me()), amt, true, "Double Rent &#8212; pay " + fmtAmt(amt) + "!", cb);
       }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
     } else {
       var drkeys2 = Object.keys(actor.props), drBest = null, drBestAmt = 0;
       for (var drk = 0; drk < drkeys2.length; drk++) { var dra = rentAmt(actor, drkeys2[drk]) * 2; if (dra > drBestAmt) { drBestAmt = dra; drBest = drkeys2[drk]; } }
       if (!drBest) { cb(); return; }
-      toast(actor.name + " plays Double Rent! &#163;" + drBestAmt + "M from all!");
-      chargeAll(actor, [me()], drBestAmt, false, actor.name + " Double Rent &#8212; pay &#163;" + drBestAmt + "M!", cb);
+      toast(actor.name + " plays Double Rent! " + fmtAmt(drBestAmt) + " from all!");
+      chargeAll(actor, [me()], drBestAmt, false, actor.name + " Double Rent &#8212; pay " + fmtAmt(drBestAmt) + "!", cb);
     }
     return;
   }
@@ -1666,12 +1669,12 @@ function doRent(actor, card, im, cb) {
     for (var i = 0; i < ckeys.length; i++) if (me().props[ckeys[i]] && me().props[ckeys[i]].length) rentable.push(ckeys[i]);
     if (!rentable.length) { toast("No matching properties to charge rent for"); G.plays++; me().hand.push(card); renderAll(); cb(); return; }
     var opts = [];
-    for (var ri = 0; ri < rentable.length; ri++) opts.push({label:COLS[rentable[ri]].name + " &#8212; &#163;" + rentAmt(me(), rentable[ri]) + "M",col:rentable[ri]});
+    for (var ri = 0; ri < rentable.length; ri++) opts.push({label:COLS[rentable[ri]].name + " &#8212; " + fmtAmt(rentAmt(me(), rentable[ri])),col:rentable[ri]});
     showColorPick(opts, function(col) {
       var amt = rentAmt(me(), col);
-      if (G.dbl) { amt *= 2; G.dbl = false; toast("DOUBLE RENT! Charging &#163;" + amt + "M!"); }
-      else toast("Charging &#163;" + amt + "M " + COLS[col].name + " rent!");
-      chargeAll(me(), others(me()), amt, true, "Rent &#8212; pay &#163;" + amt + "M!", cb);
+      if (G.dbl) { amt *= 2; G.dbl = false; toast("DOUBLE RENT! Charging " + fmtAmt(amt) + "!"); }
+      else toast("Charging " + fmtAmt(amt) + " " + COLS[col].name + " rent!");
+      chargeAll(me(), others(me()), amt, true, "Rent &#8212; pay " + fmtAmt(amt) + "!", cb);
     }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
   } else {
     var rentable2 = [], rks = card.isWild ? Object.keys(actor.props) : card.cols;
@@ -1681,8 +1684,8 @@ function doRent(actor, card, im, cb) {
     for (var rbi = 1; rbi < rentable2.length; rbi++) if (rentAmt(actor, rentable2[rbi]) > rentAmt(actor, best)) best = rentable2[rbi];
     var amt2 = rentAmt(actor, best);
     if (G.dbl) { amt2 *= 2; G.dbl = false; }
-    toast(actor.name + " charges &#163;" + amt2 + "M " + COLS[best].name + " rent!");
-    chargeAll(actor, [me()], amt2, false, actor.name + " rent &#8212; pay &#163;" + amt2 + "M!", cb);
+    toast(actor.name + " charges " + fmtAmt(amt2) + " " + COLS[best].name + " rent!");
+    chargeAll(actor, [me()], amt2, false, actor.name + " rent &#8212; pay " + fmtAmt(amt2) + "!", cb);
   }
 }
 
@@ -1693,11 +1696,11 @@ function chargeAll(actor, targets, amt, im, msg, cb) {
     var target = targets[i++];
     if (target === me()) {
       jsnMe(msg,
-        function() { payUpManual(me(), actor, amt, function(p) { toast("You paid &#163;" + p + "M"); renderAll(); next(); }); },
+        function() { payUpManual(me(), actor, amt, function(p) { toast("You paid " + fmtAmt(p)); renderAll(); next(); }); },
         function() { toast("You blocked with Just Say No!"); next(); });
     } else {
       jsnAI(target, msg,
-        function() { var p = payUp(target, actor, amt); if (im) toast(target.name + " paid &#163;" + p + "M"); renderAll(); checkWin(actor); next(); },
+        function() { var p = payUp(target, actor, amt); if (im) toast(target.name + " paid " + fmtAmt(p)); renderAll(); checkWin(actor); next(); },
         function() { if (im) toast(target.name + " blocked with Just Say No!"); next(); });
     }
   }
@@ -1710,7 +1713,7 @@ function jsnMe(msg, accept, decline) {
   for (var i = 0; i < me().hand.length; i++) if (me().hand[i].name === "Just Say No") { hasJ = true; break; }
   if (hasJ) {
     _jy = decline; _jn = accept;
-    ge("jmsg").innerHTML = msg + "<br><b>You have a Just Say No card!</b><br><span style='font-size:.9rem;opacity:.75'>&#128176; Your bank: &#163;" + me().bank + "M</span>";
+    ge("jmsg").innerHTML = msg + "<br><b>You have a Just Say No card!</b><br><span style='font-size:.9rem;opacity:.75'>&#128176; Your bank: " + fmtAmt(me().bank) + "</span>";
     ge("jov").classList.add("on");
   } else { accept(); }
 }
@@ -1982,7 +1985,7 @@ function pickColor(card, cb) {
 function pickTarget(opps, title, cb, onCancel) {
   var items = [];
   for (var i = 0; i < opps.length; i++) {
-    (function(p) { items.push({label:p.name,sub:"Bank: &#163;"+p.bank+"M &#8212; Sets: "+allSets(p).length,cb:function(){cb(p);}}); })(opps[i]);
+    (function(p) { items.push({label:p.name,sub:"Bank: "+fmtAmt(p.bank)+" &#8212; Sets: "+allSets(p).length,cb:function(){cb(p);}}); })(opps[i]);
   }
   buildM(title, items, onCancel || true);
 }
@@ -2032,7 +2035,7 @@ function loadGloss(tab) {
     var ck = Object.keys(COLS);
     for (i = 0; i < ck.length; i++) {
       var c = COLS[ck[i]];
-      html += '<div class="pe" style="background:' + c.hex + '22;border:1px solid ' + c.hex + '44"><h4 style="color:' + c.hex + '">' + c.name + '</h4><p>' + c.need + ' to complete</p><p>Rent: &#163;' + c.rent.join("M / &#163;") + 'M</p></div>';
+      html += '<div class="pe" style="background:' + c.hex + '22;border:1px solid ' + c.hex + '44"><h4 style="color:' + c.hex + '">' + c.name + '</h4><p>' + c.need + ' to complete</p><p>Rent: ' + c.rent.map(fmtAmt).join(' / ') + '</p></div>';
     }
     html += '</div>';
     html += '<div class="gc" style="margin-top:10px"><div class="gch"><div class="gic" style="background:#1a2a3a">&#127968;</div><div><h3>How Properties Work</h3><span>The path to victory</span></div></div><div class="gcb">Place property cards face-up on the table grouped by colour. More cards of the same colour means higher rent. When a set is complete it shows &#11088;. Win by completing 3 different-colour sets.<div class="gtip">&#128161; Houses (+&#163;3M) and Hotels (+&#163;4M) can only go on complete sets. Railroad and Utility cannot have houses or hotels.</div></div></div>';
@@ -2042,7 +2045,7 @@ function loadGloss(tab) {
   } else if (tab === "m") {
     html = '<div class="gc"><div class="gch"><div class="gic" style="background:#091f0e">&#128176;</div><div><h3>Money Cards</h3><span>20 cards in deck</span></div></div><div class="gcb">Place face-up in your bank to pay rent and other charges.<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0">';
     var mv = [[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]];
-    for (i = 0; i < mv.length; i++) html += '<div style="background:#133018;border-radius:8px;padding:8px;text-align:center"><div style="font-family:\'Bebas Neue\',cursive;font-size:20px;color:#6ee7b7">&#163;' + mv[i][0] + 'M</div><div style="font-size:11px;color:#4a8a4a">&#215;' + mv[i][1] + '</div></div>';
+    for (i = 0; i < mv.length; i++) html += '<div style="background:#133018;border-radius:8px;padding:8px;text-align:center"><div style="font-family:\'Bebas Neue\',cursive;font-size:20px;color:#6ee7b7">' + fmtAmt(mv[i][0]) + '</div><div style="font-size:11px;color:#4a8a4a">&#215;' + mv[i][1] + '</div></div>';
     html += '</div>Action and rent cards can also be banked for their printed value &#8212; but permanently lose their special ability once banked.<div class="gtip">&#128161; Pay debts from bank first, then hand over property cards. No change given. Cannot pay from hand.</div></div></div>';
   } else if (tab === "r") {
     html = '<div class="gc"><div class="gch"><div class="gic" style="background:linear-gradient(135deg,#D83030,#1848D8)">&#128184;</div><div><h3>Wild Rent</h3><span>&#215;3 in deck &#8212; Highest value rent</span></div></div><div class="gcb">Charge rent for ANY colour you own &#8212; pick whichever earns the most. All opponents pay.<div class="gtip">&#128161; Combine with Double the Rent on a full Blue set with house and hotel for maximum damage.</div></div></div>';
@@ -2254,7 +2257,7 @@ function showInfo(cid, col) {
     body += '<table class="rtbl"><tr><th>Cards owned</th><th>Rent</th></tr>';
     for (i = 0; i < c.rent.length; i++) body += '<tr><td>' + (i + 1) + (i + 1 === c.need ? " &#11088; full set" : "") + '</td><td><b>&#163;' + c.rent[i] + 'M</b></td></tr>';
     body += '</table>';
-    body += '<div style="height:.6rem"></div>' + kv("Payment value", "&#163;" + card.v + "M");
+    body += '<div style="height:.6rem"></div>' + kv("Payment value", fmtAmt(card.v));
     if (card.col !== "railroad" && card.col !== "utility") body += '<div class="inf-tip">&#128161; A complete set can take a House (+&#163;3M) and then a Hotel (+&#163;4M).</div>';
   } else if (card.t === "wild") {
     sw = wildBg(card); ic = "&#127183;"; kind = "Property wildcard";
@@ -2263,19 +2266,19 @@ function showInfo(cid, col) {
     body += kv("Payment value", "&#163;0M");
     body += '<div class="inf-tip">&#128161; Moving it is free: on your turn, tap it in your properties, then tap <b>Move Wildcard</b>. It can be stolen, but can&#8217;t pay debts.</div>';
   } else if (card.t === "money") {
-    sw = MONEY_TONE[card.v] || "#efe2bf"; ic = "&#128176;"; title = "&#163;" + card.v + "M Money"; kind = "Money card";
+    sw = MONEY_TONE[card.v] || "#efe2bf"; ic = "&#128176;"; title = fmtAmt(card.v) + " Money"; kind = "Money card";
     body += '<p class="inf-d">Bank it (uses 1 play) to pay rent and other charges. No change is given.</p>';
-    body += kv("Value", "&#163;" + card.v + "M");
+    body += kv("Value", fmtAmt(card.v));
   } else if (card.t === "action") {
     sw = card.name === "Just Say No" ? "#d7262e" : "#3b2a8f"; ic = card.icon; kind = "Action card";
     body += '<p class="inf-d">' + (ACT_INFO[card.name] || "") + '</p>';
-    body += kv("Bank value", "&#163;" + card.v + "M");
+    body += kv("Bank value", fmtAmt(card.v));
     body += '<div class="inf-tip">&#128161; Or bank it for &#163;' + card.v + 'M &#8212; it then loses its action.</div>';
   } else if (card.t === "rent") {
     sw = card.isWild ? RAINBOW : "linear-gradient(90deg," + COLS[card.cols[0]].hex + " 50%," + COLS[card.cols[1]].hex + " 50%)";
     ic = "&#128184;"; kind = "Rent card"; title = card.isWild ? "Wild Rent" : "Rent";
     body += '<p class="inf-d">' + (card.isWild ? "Charge rent for <b>any one colour</b> you own." : "Charge rent for <b>" + COLS[card.cols[0]].name + "</b> or <b>" + COLS[card.cols[1]].name + "</b> &#8212; whichever you own.") + ' Every opponent pays; each can block with Just Say No.</p>';
-    body += kv("Bank value", "&#163;" + card.v + "M");
+    body += kv("Bank value", fmtAmt(card.v));
     body += '<div class="inf-tip">&#128161; Play Double the Rent first to double it.</div>';
   }
   ge("ibdy").innerHTML = '<div class="inf-top"><div class="inf-sw" style="background:' + sw + '">' + ic + '</div><div class="inf-t"><h3>' + title + '</h3><span>' + kind + '</span></div></div>' + body;
