@@ -51,6 +51,14 @@ html[data-font="fredoka"]{--fb:"Fredoka",system-ui,sans-serif}
 [data-style="classic"][data-theme="light"]{--bg:#cfe6d2;--bg2:#e9f3e3;--felt:#e2eed8;--s1:#fbf8ee;--s2:#f0ead6;--bd:#2b2b2b;--tx:#1d1d1b;--dim:#545a4c;--ac:#d7262e;--actx:#fff;--card:#fbf8ee;--cardtx:#1d1d1b;--cardbd:#1d1d1b;--sh:0 2px 0 rgba(0,0,0,.3);--csh:0 2px 0 rgba(0,0,0,.35);--actc:#d7262e;--back1:#d7262e;--back2:#9e1219}
 [data-style="classic"][data-theme="dark"]{--bg:#0f1f17;--bg2:#1a3325;--felt:#142a1e;--s1:#1a2b21;--s2:#22372a;--bd:#3f5d49;--tx:#f4efdf;--dim:#aebba9;--ac:#ef3b42;--actx:#fff;--card:#f4efdf;--cardtx:#1d1d1b;--cardbd:#0b0b0b;--sh:0 2px 0 rgba(0,0,0,.5);--csh:0 2px 0 rgba(0,0,0,.6);--actc:#d7262e;--back1:#d7262e;--back2:#9e1219}
 
+/* ═══ ONE PIECE: PARADISE THEME ═══ */
+[data-op="1"]{--fd:"Fredoka",var(--fb);--fw:700;--cbw:2px;--rad:16px;--crad:10px;--logo-sh:3px 3px 0 #000;--bsh:0 3px 0 #000}
+[data-op="1"][data-theme="dark"]{--bg:#0a1628;--bg2:#0f2540;--felt:#0d2038;--s1:#0f2540;--s2:#142e50;--bd:#000;--tx:#f0e6c8;--dim:#8aaccc;--ac:#f0a500;--actx:#0a1628;--card:#fffbe8;--cardtx:#1a1000;--cardbd:#000;--sh:0 4px 0 #000;--csh:0 3px 0 #000;--actc:#c0392b;--back1:#c0392b;--back2:#7b241c}
+[data-op="1"][data-theme="light"]{--bg:#d6eaf8;--bg2:#aed6f1;--felt:#b6d4ed;--s1:#ffffff;--s2:#eaf4fb;--bd:#1a3a5c;--tx:#0a1628;--dim:#1f618d;--ac:#c0392b;--actx:#fff;--card:#ffffff;--cardtx:#0a1628;--cardbd:#1a3a5c;--sh:0 3px 0 #1a3a5c;--csh:0 2px 0 #1a3a5c;--actc:#c0392b;--back1:#c0392b;--back2:#7b241c}
+[data-op="1"] #pg-start{background:radial-gradient(ellipse at 50% 0%,var(--bg2),var(--bg) 70%)}
+[data-op="1"] .logo h1{color:var(--ac)}
+[data-op="1"] .logo p{color:var(--dim)}
+
 /* ═══════════════ BASE ═══════════════ */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:1rem;height:100dvh;overflow:hidden;position:fixed;width:100%;transition:background .25s}
@@ -387,7 +395,7 @@ button{font-family:inherit;color:inherit}
     <button class="hb" id="sset" aria-label="Settings">&#9881;&#65039;</button>
   </div>
   <div class="start-in">
-    <div class="logo"><h1>MONOPOLY<br>DEAL</h1><p>Practice vs AI</p></div>
+    <div class="logo"><h1>MONOPOLY<br>DEAL</h1><p id="logo-sub">Practice vs AI</p></div>
     <div class="fan" id="fan"></div>
     <div class="aip" id="mode-pick">
       <h3>Game Mode</h3>
@@ -402,6 +410,7 @@ button{font-family:inherit;color:inherit}
         <div class="aib on" id="ai1">1 AI<br><span style="font-size:.8rem;opacity:.7">2 players</span></div>
         <div class="aib" id="ai2">2 AI<br><span style="font-size:.8rem;opacity:.7">3 players</span></div>
         <div class="aib" id="ai3">3 AI<br><span style="font-size:.8rem;opacity:.7">4 players</span></div>
+        <div class="aib" id="ai4">4 AI<br><span style="font-size:.8rem;opacity:.7">5 players</span></div>
       </div>
     </div>
     <div class="aip">
@@ -410,6 +419,13 @@ button{font-family:inherit;color:inherit}
         <div class="aib" id="dif-easy">&#128522; Easy<br><span style="font-size:.8rem;opacity:.7">Random plays</span></div>
         <div class="aib on" id="dif-med">&#128512; Medium<br><span style="font-size:.8rem;opacity:.7">Smart AI</span></div>
         <div class="aib" id="dif-hard">&#128520; Hard<br><span style="font-size:.8rem;opacity:.7">Ruthless AI</span></div>
+      </div>
+    </div>
+    <div class="aip">
+      <h3>Theme</h3>
+      <div class="aio">
+        <div class="aib on" id="theme-default">&#127183; Default<br><span style="font-size:.8rem;opacity:.7">Classic Monopoly</span></div>
+        <div class="aib" id="theme-op">&#127988;&#8205;&#9760;&#65039; One Piece<br><span style="font-size:.8rem;opacity:.7">Paradise</span></div>
       </div>
     </div>
     <div class="sw">
@@ -715,15 +731,16 @@ var _uid = 0;
 function nid() { return _uid++; }
 
 function buildDeck() {
-  var d = [], i, j, col, ck = Object.keys(COLS);
+  var C = activeCOLS(), P = activePNAMES();
+  var d = [], i, j, col, ck = Object.keys(C);
   var mv = [[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]];
   for (i = 0; i < mv.length; i++) for (j = 0; j < mv[i][1]; j++) d.push({id:nid(),t:"money",v:mv[i][0]});
   for (i = 0; i < ck.length; i++) {
     col = ck[i];
-    for (j = 0; j < PNAMES[col].length; j++) d.push({id:nid(),t:"prop",col:col,name:PNAMES[col][j],v:COLS[col].rent[j]||1});
+    for (j = 0; j < P[col].length; j++) d.push({id:nid(),t:"prop",col:col,name:P[col][j],v:C[col].rent[j]||1});
   }
   var w2 = [["lightblue","brown"],["lightblue","railroad"],["pink","orange"],["pink","orange"],["red","yellow"],["red","yellow"],["blue","green"],["green","railroad"],["railroad","utility"]];
-  for (i = 0; i < w2.length; i++) d.push({id:nid(),t:"wild",cols:[w2[i][0],w2[i][1]],isMulti:false,v:0,name:COLS[w2[i][0]].name+"/"+COLS[w2[i][1]].name+" Wild"});
+  for (i = 0; i < w2.length; i++) d.push({id:nid(),t:"wild",cols:[w2[i][0],w2[i][1]],isMulti:false,v:0,name:C[w2[i][0]].name+"/"+C[w2[i][1]].name+" Wild"});
   for (i = 0; i < 2; i++) d.push({id:nid(),t:"wild",cols:ck,isMulti:true,v:0,name:"Multi-Colour Wild"});
   var acts = [
     ["Pass Go",10,1,"&#128640;"],["Deal Breaker",2,5,"&#128165;"],["Just Say No",3,4,"&#128683;"],
@@ -733,7 +750,7 @@ function buildDeck() {
   ];
   for (i = 0; i < acts.length; i++) for (j = 0; j < acts[i][1]; j++) d.push({id:nid(),t:"action",name:acts[i][0],v:acts[i][2],icon:acts[i][3]});
   var rp = [["lightblue","brown"],["pink","orange"],["red","yellow"],["blue","green"],["railroad","utility"]];
-  for (i = 0; i < rp.length; i++) for (j = 0; j < 2; j++) d.push({id:nid(),t:"rent",cols:[rp[i][0],rp[i][1]],isWild:false,v:1,name:"Rent ("+COLS[rp[i][0]].name+"/"+COLS[rp[i][1]].name+")"});
+  for (i = 0; i < rp.length; i++) for (j = 0; j < 2; j++) d.push({id:nid(),t:"rent",cols:[rp[i][0],rp[i][1]],isWild:false,v:1,name:"Rent ("+C[rp[i][0]].name+"/"+C[rp[i][1]].name+")"});
   for (i = 0; i < 3; i++) d.push({id:nid(),t:"rent",cols:ck,isWild:true,v:3,name:"Wild Rent"});
   return d;
 }
@@ -745,7 +762,47 @@ function shuffle(a) {
   return a;
 }
 
-var G = {}, numAI = 1, gameMode = "classic", gameDiff = "med", _wildSel = null; // _wildSel = {col, idx} of placed wild being moved
+var G = {}, numAI = 1, gameMode = "classic", gameDiff = "med", gameTheme = "default", _wildSel = null; // _wildSel = {col, idx} of placed wild being moved
+
+/* ══ One Piece: Paradise villain pools by difficulty ══ */
+var OP_VILLAINS = {
+  easy:  ["Arlong","Don Krieg","Captain Kuro","Buggy","Morgan","Alvida","Spandam","Dr. Hogback"],
+  med:   ["Wapol","Bellamy","Perona","Foxy","Ohm","Shura","Gedatsu","Satori","Bon Clay","Mr. 3","Miss Doublefinger"],
+  hard:  ["Magellan","Enel","Rob Lucci","Crocodile","Gecko Moria","Kaku","Jabra","Daz Bonez"]
+};
+function opVillainNames(n) {
+  var pool = OP_VILLAINS[gameDiff] || OP_VILLAINS.med;
+  var shuffled = pool.slice().sort(function(){return Math.random()-.5;});
+  return shuffled.slice(0, n);
+}
+
+/* ══ One Piece property names (used when OP theme active) ══ */
+var OP_COLS = {
+  brown:    {name:"East Blue",     hex:"#8B5E3C", need:2, rent:[1,2]},
+  lightblue:{name:"Lt Garden",     hex:"#5DB8E8", need:3, rent:[1,2,3]},
+  pink:     {name:"Reverse Mtn",   hex:"#E055A0", need:3, rent:[1,2,4]},
+  orange:   {name:"Alabasta",      hex:"#F08030", need:3, rent:[1,3,5]},
+  red:      {name:"Skypiea",       hex:"#D83030", need:3, rent:[2,3,6]},
+  yellow:   {name:"Water 7",       hex:"#E8CC30", need:3, rent:[2,4,6]},
+  green:    {name:"Thriller Bark", hex:"#30A850", need:3, rent:[2,4,7]},
+  blue:     {name:"Marineford",    hex:"#1848D8", need:2, rent:[3,8]},
+  railroad: {name:"Sea Route",     hex:"#333344", need:4, rent:[1,2,3,4]},
+  utility:  {name:"Devil Tools",   hex:"#8844BB", need:2, rent:[1,2]}
+};
+var OP_PNAMES = {
+  brown:    ["Shells Town","Orange Town"],
+  lightblue:["Syrup Village","Baratie","Arlong Park"],
+  pink:     ["Whisky Peak","Little Garden","Drum Island"],
+  orange:   ["Nanohana","Alubarna","Rainbase"],
+  red:      ["Angel Island","Upper Yard","Shandora"],
+  yellow:   ["Water 7","Galley-La Dock","Enies Lobby"],
+  green:    ["Thriller Bark","Florian Triangle","Gecko Islands"],
+  blue:     ["Sabaody Archipelago","Marineford"],
+  railroad: ["Marine Battleship","Thousand Sunny","Puffing Tom","Moby Dick"],
+  utility:  ["Den Den Mushi","Seastone"]
+};
+function activeCOLS()  { return gameTheme === "op" ? OP_COLS  : COLS; }
+function activePNAMES(){ return gameTheme === "op" ? OP_PNAMES : PNAMES; }
 
 // ── STATS ─────────────────────────────────────────────────────────────────
 function loadStats() {
@@ -781,18 +838,19 @@ function mkP(name, human) { return {name:name,human:human,hand:[],bank:0,props:{
 
 // ── NO MERCY DECK (120 cards) ──────────────────────────────────────────────
 function buildDeckNM() {
-  var d = [], i, j, col, ck = Object.keys(COLS);
+  var C = activeCOLS(), P = activePNAMES();
+  var d = [], i, j, col, ck = Object.keys(C);
   // Money: same as classic (20)
   var mv = [[1,6],[2,5],[3,3],[4,3],[5,2],[10,1]];
   for (i = 0; i < mv.length; i++) for (j = 0; j < mv[i][1]; j++) d.push({id:nid(),t:"money",v:mv[i][0]});
   // Properties: same as classic (28)
   for (i = 0; i < ck.length; i++) {
     col = ck[i];
-    for (j = 0; j < PNAMES[col].length; j++) d.push({id:nid(),t:"prop",col:col,name:PNAMES[col][j],v:COLS[col].rent[j]||1});
+    for (j = 0; j < P[col].length; j++) d.push({id:nid(),t:"prop",col:col,name:P[col][j],v:C[col].rent[j]||1});
   }
   // Wildcards: same as classic (11)
   var w2 = [["lightblue","brown"],["lightblue","railroad"],["pink","orange"],["pink","orange"],["red","yellow"],["red","yellow"],["blue","green"],["green","railroad"],["railroad","utility"]];
-  for (i = 0; i < w2.length; i++) d.push({id:nid(),t:"wild",cols:[w2[i][0],w2[i][1]],isMulti:false,v:0,name:COLS[w2[i][0]].name+"/"+COLS[w2[i][1]].name+" Wild"});
+  for (i = 0; i < w2.length; i++) d.push({id:nid(),t:"wild",cols:[w2[i][0],w2[i][1]],isMulti:false,v:0,name:C[w2[i][0]].name+"/"+C[w2[i][1]].name+" Wild"});
   for (i = 0; i < 2; i++) d.push({id:nid(),t:"wild",cols:ck,isMulti:true,v:0,name:"Multi-Colour Wild"});
   // Action cards — No Mercy set (replaces/extends classic)
   // Classic actions kept: Pass Go x10, Deal Breaker x2, Just Say No x3, Sly Deal x3,
@@ -809,15 +867,49 @@ function buildDeckNM() {
   for (i = 0; i < acts.length; i++) for (j = 0; j < acts[i][1]; j++) d.push({id:nid(),t:"action",name:acts[i][0],v:acts[i][2],icon:acts[i][3]});
   // Rent: same as classic (13)
   var rp = [["lightblue","brown"],["pink","orange"],["red","yellow"],["blue","green"],["railroad","utility"]];
-  for (i = 0; i < rp.length; i++) for (j = 0; j < 2; j++) d.push({id:nid(),t:"rent",cols:[rp[i][0],rp[i][1]],isWild:false,v:1,name:"Rent ("+COLS[rp[i][0]].name+"/"+COLS[rp[i][1]].name+")"});
+  for (i = 0; i < rp.length; i++) for (j = 0; j < 2; j++) d.push({id:nid(),t:"rent",cols:[rp[i][0],rp[i][1]],isWild:false,v:1,name:"Rent ("+C[rp[i][0]].name+"/"+C[rp[i][1]].name+")"});
   for (i = 0; i < 3; i++) d.push({id:nid(),t:"rent",cols:ck,isWild:true,v:3,name:"Wild Rent"});
   return d;
 }
 
 function init() {
   _uid = 0;
+  // Swap COLS/PNAMES to active theme so all game logic uses correct names
+  if (gameTheme === "op") {
+    var _k; for (_k in OP_COLS) COLS[_k] = OP_COLS[_k];
+    for (_k in OP_PNAMES) PNAMES[_k] = OP_PNAMES[_k];
+  } else {
+    var BASE_COLS = {
+      brown:    {name:"Brown",    hex:"#8B5E3C", need:2, rent:[1,2]},
+      lightblue:{name:"Lt Blue", hex:"#5DB8E8", need:3, rent:[1,2,3]},
+      pink:     {name:"Pink",    hex:"#E055A0", need:3, rent:[1,2,4]},
+      orange:   {name:"Orange",  hex:"#F08030", need:3, rent:[1,3,5]},
+      red:      {name:"Red",     hex:"#D83030", need:3, rent:[2,3,6]},
+      yellow:   {name:"Yellow",  hex:"#E8CC30", need:3, rent:[2,4,6]},
+      green:    {name:"Green",   hex:"#30A850", need:3, rent:[2,4,7]},
+      blue:     {name:"Blue",    hex:"#1848D8", need:2, rent:[3,8]},
+      railroad: {name:"Railroad",hex:"#333344", need:4, rent:[1,2,3,4]},
+      utility:  {name:"Utility", hex:"#8844BB", need:2, rent:[1,2]}
+    };
+    var BASE_PNAMES = {
+      brown:    ["Old Kent Rd","Whitechapel"],
+      lightblue:["Angel Islington","Euston Rd","Pentonville"],
+      pink:     ["Pall Mall","Whitehall","Northumberland"],
+      orange:   ["Bow St","Marlborough","Vine St"],
+      red:      ["Strand","Fleet St","Trafalgar Sq"],
+      yellow:   ["Piccadilly","Coventry St","Leicester Sq"],
+      green:    ["Bond St","Oxford St","Regent St"],
+      blue:     ["Park Lane","Mayfair"],
+      railroad: ["Kings Cross","Marylebone","Fenchurch St","Liverpool St"],
+      utility:  ["Electric Co","Water Works"]
+    };
+    var _k2; for (_k2 in BASE_COLS) COLS[_k2] = BASE_COLS[_k2];
+    for (_k2 in BASE_PNAMES) PNAMES[_k2] = BASE_PNAMES[_k2];
+  }
   var deck = shuffle(gameMode === "nomercy" ? buildDeckNM() : buildDeck());
-  var ain = ["AI Alpha","AI Beta","AI Gamma"];
+  var ain = gameTheme === "op"
+    ? opVillainNames(numAI)
+    : ["AI Alpha","AI Beta","AI Gamma","AI Delta"];
   var players = [mkP("You", true)];
   for (var i = 0; i < numAI; i++) players.push(mkP(ain[i], false));
   G = {deck:deck,disc:[],players:players,turn:0,phase:"draw",drawn:0,plays:3,dbl:false,discMode:false,discN:0,sel:null,mode:gameMode};
@@ -1844,9 +1936,32 @@ ge("mnm").addEventListener("click", function() {
   ge("mnm").classList.add("on-nm");
   ge("mc").classList.remove("on");
 });
-ge("ai1").addEventListener("click", function() { numAI = 1; ge("ai1").classList.add("on"); ge("ai2").classList.remove("on"); ge("ai3").classList.remove("on"); });
-ge("ai2").addEventListener("click", function() { numAI = 2; ge("ai2").classList.add("on"); ge("ai1").classList.remove("on"); ge("ai3").classList.remove("on"); });
-ge("ai3").addEventListener("click", function() { numAI = 3; ge("ai3").classList.add("on"); ge("ai1").classList.remove("on"); ge("ai2").classList.remove("on"); });
+function setAI(n) {
+  numAI = n;
+  ["ai1","ai2","ai3","ai4"].forEach(function(id,i){
+    ge(id).classList.toggle("on", i+1 === n);
+  });
+}
+ge("ai1").addEventListener("click", function() { setAI(1); });
+ge("ai2").addEventListener("click", function() { setAI(2); });
+ge("ai3").addEventListener("click", function() { setAI(3); });
+ge("ai4").addEventListener("click", function() { setAI(4); });
+
+// Theme toggle
+ge("theme-default").addEventListener("click", function() {
+  gameTheme = "default";
+  document.documentElement.removeAttribute("data-op");
+  ge("theme-default").classList.add("on");
+  ge("theme-op").classList.remove("on");
+  ge("logo-sub").textContent = "Practice vs AI";
+});
+ge("theme-op").addEventListener("click", function() {
+  gameTheme = "op";
+  document.documentElement.setAttribute("data-op","1");
+  ge("theme-op").classList.add("on");
+  ge("theme-default").classList.remove("on");
+  ge("logo-sub").innerHTML = "🏴‍☠️ One Piece: Paradise";
+});
 ge("btn-deal").addEventListener("click", startGame);
 ge("btn-rs").addEventListener("click", openRules);
 ge("btn-gs").addEventListener("click", openGloss);
