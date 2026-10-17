@@ -1052,7 +1052,7 @@ function payUpManual(payer, payee, amt, cb) {
 
     ge("dp-tally").innerHTML =
       "Offered: " + fmtAmt(offered) + " &nbsp;|&nbsp; Owe: " + fmtAmt(owes) +
-      (enough ? ' &nbsp;<span style="color:#27ae60">&#10003; Enough!</span>' : ' &nbsp;<span style="color:#e74c3c">Still need: " + fmtAmt(owes - offered) + "</span>");
+      (enough ? ' &nbsp;<span style="color:#27ae60">&#10003; Enough!</span>' : ' &nbsp;<span style="color:#e74c3c">Still need: ' + fmtAmt(owes - offered) + '</span>');
 
     ge("dp-bank-val").innerHTML = fmtAmt(bankAmt);
     ge("dp-bank-max").innerHTML = fmtAmt(payer.bank);
