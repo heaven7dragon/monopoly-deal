@@ -1098,7 +1098,10 @@ function payUp(payer, payee, amt) {
       var col = k[i], props = payer.props[col];
       if (props && props.length) {
         var prop = props.pop(), val = prop.v || 1;
-        payee.bank += val; paid += val; rem -= val;
+        // Transfer property card to payee's properties (not as cash)
+        if (!payee.props[col]) payee.props[col] = [];
+        payee.props[col].push(prop);
+        paid += val; rem -= val;
         if (!props.length) { delete payer.props[col]; delete payer.houses[col]; delete payer.hotels[col]; }
         else if (!setDone(payer, col)) { delete payer.houses[col]; delete payer.hotels[col]; }
       }
@@ -1225,7 +1228,10 @@ function payUpManual(payer, payee, amt, cb) {
       var removed = propArr.splice(sp.idx, 1)[0];
       if (!propArr.length) { delete payer.props[sp.col]; delete payer.houses[sp.col]; delete payer.hotels[sp.col]; }
       else if (!setDone(payer, sp.col)) { delete payer.houses[sp.col]; delete payer.hotels[sp.col]; }
-      payee.bank += sp.val; paid += sp.val;
+      // Transfer property card to payee's properties (not as cash)
+      if (!payee.props[sp.col]) payee.props[sp.col] = [];
+      payee.props[sp.col].push(removed);
+      paid += sp.val;
     }
     // reset state
     bankAmt = 0; selProps = [];
@@ -1689,7 +1695,8 @@ function doAction(actor, card, im, cb) {
 
   if (n === "Double the Rent") {
     G.dbl = true;
-    if (!im) toast(actor.name + " played Double the Rent!");
+    if (im) toast("&#215;2 Double the Rent active! Now play a Rent card to charge double!");
+    else toast(actor.name + " played Double the Rent!");
     renderAll(); cb(); return;
   }
 
