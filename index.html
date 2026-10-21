@@ -109,6 +109,7 @@ button{font-family:inherit;color:inherit}
   grid-template-areas:"opp" "tbl" "yb" "yprops" "dal" "hand" "ab" "ab2"}
 
 /* opponents */
+.opp-left-col,.opp-right-col{display:none}
 .opp-area{grid-area:opp;overflow-y:visible;padding:.5rem .75rem;display:flex;flex-direction:column;gap:.5rem}
 .ob{background:var(--s1);border:var(--cbw) solid var(--bd);border-radius:var(--rad);padding:.5rem .65rem;flex-shrink:0}
 .ob.turn{border-color:var(--ac);box-shadow:0 0 0 2px var(--ac)}
@@ -429,6 +430,7 @@ button{font-family:inherit;color:inherit}
     grid-area:unset;
     writing-mode:initial
   }
+  .opp-left-col,.opp-right-col{display:flex}
   .opp-left-col{
     grid-area:opp-left;
     display:flex;
