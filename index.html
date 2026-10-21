@@ -1033,7 +1033,8 @@ function init() {
     : ["AI Alpha","AI Beta","AI Gamma","AI Delta"];
   var players = [mkP("You", true)];
   for (var i = 0; i < numAI; i++) players.push(mkP(ain[i], false));
-  G = {deck:deck,disc:[],players:players,turn:0,phase:"draw",drawn:0,plays:3,dbl:false,discMode:false,discN:0,sel:null,mode:gameMode};
+  var startTurn = Math.floor(Math.random() * players.length);
+  G = {deck:deck,disc:[],players:players,turn:startTurn,phase:"draw",drawn:0,plays:3,dbl:false,discMode:false,discN:0,sel:null,mode:gameMode};
   // Deal 5 cards each
   for (var p = 0; p < G.players.length; p++) for (var c = 0; c < 5; c++) if (G.deck.length) G.players[p].hand.push(G.deck.pop());
   // No Mercy: each player also draws 2 more at setup (start with 7)
@@ -2186,13 +2187,20 @@ function loadGloss(tab) {
 function startGame() {
   ge("wov").classList.remove("on");
   init(); goTo("pg-game");
-  G.phase = "draw"; G.drawn = 0; G.plays = 3;
+  G.drawn = 0; G.plays = 3;
   // Show/hide No Mercy badge in header
   ge("nm-badge").style.display = (G.mode === "nomercy") ? "inline-block" : "none";
   // Show NM quick-rule bullet
   ge("qr-nm").style.display = (G.mode === "nomercy") ? "list-item" : "none";
   renderAll();
-  toast(G.mode === "nomercy" ? "NO MERCY 🚨 7 cards dealt! Draw to start." : "5 cards dealt! Tap the draw pile to start");
+  if (isMe()) {
+    G.phase = "draw";
+    toast(G.mode === "nomercy" ? "NO MERCY 🚨 7 cards dealt! You go first — tap the draw pile." : "You go first! Tap the draw pile to start");
+  } else {
+    G.phase = "ai";
+    toast(cur().name + " goes first!");
+    setTimeout(aiTurn, 1200);
+  }
 }
 
 // ── EVENT LISTENERS ───────────────────────────────────────────────────────
