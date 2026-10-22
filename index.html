@@ -104,10 +104,21 @@ button{font-family:inherit;color:inherit}
 .hb:active{transform:scale(.94)}
 
 /* ═══════════════ GAME GRID (portrait) ═══════════════ */
-/* .gscroll is the real scroll container — body+.pg are position:fixed/overflow:hidden
-   so we can't scroll those; instead .gscroll fills #pg-game and scrolls inside it */
+/* body is position:fixed+overflow:hidden so we can't scroll there.
+   .gscroll is an inner div that fills #pg-game and scrolls inside it.
+   Works in both Safari and standalone PWA mode. */
 #pg-game{overflow:hidden}
-.gscroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column}
+.gscroll{
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  width:100%;
+  height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  display:flex;
+  flex-direction:column
+}
 .gbody{display:grid;grid-template-columns:minmax(0,1fr);
   grid-template-rows:auto auto auto auto auto auto auto auto;
   grid-template-areas:"opp" "tbl" "yb" "yprops" "dal" "hand" "ab" "ab2"}
