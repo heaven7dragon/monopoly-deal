@@ -1176,9 +1176,21 @@ function payUpManual(payer, payee, amt, cb) {
     ge("dp-props-list").innerHTML = hasProp ? propHtml : '<span style="opacity:.5;font-size:.85rem">No properties</span>';
     ge("dp-props-sect").style.display = hasProp ? "" : "none";
 
-    var canConfirm = enough || (bankAmt >= payer.bank && !hasProp);
-    // If truly bankrupt (nothing left to give), enable confirm too
-    if (payer.bank === 0 && !hasProp) canConfirm = true;
+    // Can confirm if: offered enough, OR have nothing left to offer, OR selected everything available
+    var allPropsSelected = true;
+    var cols2 = Object.keys(payer.props);
+    for (var cp = 0; cp < cols2.length; cp++) {
+      var colCards = payer.props[cols2[cp]];
+      if (!colCards || !colCards.length) continue;
+      for (var jp = 0; jp < colCards.length; jp++) {
+        var found2 = false;
+        for (var sp2 = 0; sp2 < selProps.length; sp2++) if (selProps[sp2].col === cols2[cp] && selProps[sp2].idx === jp) { found2 = true; break; }
+        if (!found2) { allPropsSelected = false; break; }
+      }
+      if (!allPropsSelected) break;
+    }
+    var bankDrained = (bankAmt >= payer.bank);
+    var canConfirm = enough || (bankDrained && allPropsSelected);
     ge("dp-confirm").disabled = !canConfirm;
 
     var note = "";
@@ -1613,9 +1625,17 @@ function doAction(actor, card, im, cb) {
           function() { toast(target.name + " blocked with Just Say No!"); cb(); });
       }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
     } else {
-      jsnMe(actor.name + " played Debt Collector &#8212; pay " + fmtAmt(5) + "!",
-        function() { payUpManual(me(), actor, 5, function(p) { toast("You paid " + fmtAmt(p)); renderAll(); cb(); }); },
-        function() { toast("You blocked Debt Collector!"); cb(); });
+      var dcTarget = aiPickTarget(actor, oth);
+      if (!dcTarget) { cb(); return; }
+      if (dcTarget === me()) {
+        jsnMe(actor.name + " played Debt Collector &#8212; pay " + fmtAmt(5) + "!",
+          function() { payUpManual(me(), actor, 5, function(p) { toast("You paid " + fmtAmt(p)); renderAll(); cb(); }); },
+          function() { toast("You blocked Debt Collector!"); cb(); });
+      } else {
+        var dcP = payUp(dcTarget, actor, 5);
+        toast(actor.name + " sent Debt Collector to " + dcTarget.name + " &#8212; paid " + fmtAmt(dcP));
+        renderAll(); cb();
+      }
     }
     return;
   }
@@ -1631,12 +1651,26 @@ function doAction(actor, card, im, cb) {
           function() { toast(picked.owner.name + " blocked Sly Deal!"); cb(); });
       }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
     } else {
-      var st2 = stealable(me());
-      if (st2.length) {
-        var t2 = st2[Math.floor(Math.random() * st2.length)];
-        jsnMe(actor.name + " wants to steal your " + t2.card.name + " (Sly Deal)!",
-          function() { delProp(me(), t2.col, t2.cid); addProp(actor, t2.card, t2.col); toast(actor.name + " stole " + t2.card.name + "!"); renderAll(); cb(); },
-          function() { toast("You blocked Sly Deal!"); cb(); });
+      // Gather stealable from all opponents; on Hard prefer the biggest threat
+      var sdAll = [];
+      for (var sdi = 0; sdi < oth.length; sdi++) { var sdSt = stealable(oth[sdi]); for (var sdj = 0; sdj < sdSt.length; sdj++) sdAll.push(sdSt[sdj]); }
+      if (gameDiff === "hard" && sdAll.length) {
+        // prefer stealing from the opponent with most sets
+        var sdBestOwner = aiPickTarget(actor, oth);
+        var sdFromBest = stealable(sdBestOwner);
+        if (sdFromBest.length) sdAll = sdFromBest;
+      }
+      if (sdAll.length) {
+        var t2 = sdAll[Math.floor(Math.random() * sdAll.length)];
+        if (t2.owner === me()) {
+          jsnMe(actor.name + " wants to steal your " + t2.card.name + " (Sly Deal)!",
+            function() { delProp(me(), t2.col, t2.cid); addProp(actor, t2.card, t2.col); toast(actor.name + " stole " + t2.card.name + "!"); renderAll(); cb(); },
+            function() { toast("You blocked Sly Deal!"); cb(); });
+        } else {
+          delProp(t2.owner, t2.col, t2.cid); addProp(actor, t2.card, t2.col);
+          toast(actor.name + " stole " + t2.card.name + " from " + t2.owner.name + "!");
+          renderAll(); cb();
+        }
         return;
       }
       cb();
@@ -1659,12 +1693,21 @@ function doAction(actor, card, im, cb) {
         }, fdRestore);
       }, fdRestore);
     } else {
-      var pSt = stealable(me()), aiSt = stealable(actor);
-      if (pSt.length && aiSt.length) {
-        var pt = pSt[Math.floor(Math.random() * pSt.length)], ag = aiSt[Math.floor(Math.random() * aiSt.length)];
-        jsnMe(actor.name + " Force Deal: take your " + pt.card.name + " for their " + ag.card.name,
-          function() { delProp(me(), pt.col, pt.cid); addProp(actor, pt.card, pt.col); delProp(actor, ag.col, ag.cid); addProp(me(), ag.card, ag.col); toast(actor.name + " forced a deal!"); renderAll(); cb(); },
-          function() { toast("You blocked Force Deal!"); cb(); });
+      // Pick target: on hard, pick biggest threat; otherwise random
+      var fdTarget = aiPickTarget(actor, oth);
+      var fdSt = fdTarget ? stealable(fdTarget) : [], fdActSt = stealable(actor);
+      if (fdSt.length && fdActSt.length) {
+        var pt = fdSt[Math.floor(Math.random() * fdSt.length)], ag = fdActSt[Math.floor(Math.random() * fdActSt.length)];
+        if (fdTarget === me()) {
+          jsnMe(actor.name + " Force Deal: take your " + pt.card.name + " for their " + ag.card.name,
+            function() { delProp(me(), pt.col, pt.cid); addProp(actor, pt.card, pt.col); delProp(actor, ag.col, ag.cid); addProp(me(), ag.card, ag.col); toast(actor.name + " forced a deal!"); renderAll(); cb(); },
+            function() { toast("You blocked Force Deal!"); cb(); });
+        } else {
+          delProp(fdTarget, pt.col, pt.cid); addProp(actor, pt.card, pt.col);
+          delProp(actor, ag.col, ag.cid); addProp(fdTarget, ag.card, ag.col);
+          toast(actor.name + " forced a deal with " + fdTarget.name + "!");
+          renderAll(); cb();
+        }
         return;
       }
       cb();
@@ -1683,12 +1726,21 @@ function doAction(actor, card, im, cb) {
           function() { toast(t.p.name + " blocked Deal Breaker!"); cb(); });
       }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
     } else {
-      var dbc = allSets(me());
-      if (dbc.length) {
+      // Find best target for deal breaker — the opponent with most complete sets
+      var dbTarget = aiPickTarget(actor, oth.filter(function(p) { return allSets(p).length > 0; }));
+      if (dbTarget) {
+        var dbc = allSets(dbTarget);
         var dcol = dbc[Math.floor(Math.random() * dbc.length)];
-        jsnMe(actor.name + " played Deal Breaker on your " + COLS[dcol].name + " set!",
-          function() { var s = me().props[dcol].slice(); me().props[dcol] = []; delete me().houses[dcol]; delete me().hotels[dcol]; for (var si = 0; si < s.length; si++) addProp(actor, s[si], dcol); toast(actor.name + " stole your " + COLS[dcol].name + " set!"); renderAll(); cb(); },
-          function() { toast("You blocked Deal Breaker!"); cb(); });
+        if (dbTarget === me()) {
+          jsnMe(actor.name + " played Deal Breaker on your " + COLS[dcol].name + " set!",
+            function() { var s = me().props[dcol].slice(); me().props[dcol] = []; delete me().houses[dcol]; delete me().hotels[dcol]; for (var si = 0; si < s.length; si++) addProp(actor, s[si], dcol); toast(actor.name + " stole your " + COLS[dcol].name + " set!"); renderAll(); cb(); },
+            function() { toast("You blocked Deal Breaker!"); cb(); });
+        } else {
+          var s2 = dbTarget.props[dcol].slice(); dbTarget.props[dcol] = []; delete dbTarget.houses[dcol]; delete dbTarget.hotels[dcol];
+          for (var si2 = 0; si2 < s2.length; si2++) addProp(actor, s2[si2], dcol);
+          toast(actor.name + " Deal Breaker'd " + dbTarget.name + "'s " + COLS[dcol].name + " set!");
+          renderAll(); cb();
+        }
         return;
       }
       cb();
@@ -1918,6 +1970,22 @@ function debtPayCard(debtor, creditor, cb) {
     toast(debtor.name + " gave " + given2.name + " to " + creditor.name + " (Debt Chip)");
     renderAll(); cb();
   }
+}
+
+// Pick best target for an AI actor from a list of opponents
+// Hard: targets the one with most sets (closest to winning)
+// Easy/Medium: random
+function aiPickTarget(actor, candidates) {
+  if (!candidates || !candidates.length) return null;
+  if (gameDiff === "hard") {
+    var best = candidates[0], bestS = allSets(candidates[0]).length;
+    for (var i = 1; i < candidates.length; i++) {
+      var s = allSets(candidates[i]).length;
+      if (s > bestS) { bestS = s; best = candidates[i]; }
+    }
+    return best;
+  }
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
 // ── AI ────────────────────────────────────────────────────────────────────
