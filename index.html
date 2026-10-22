@@ -96,7 +96,7 @@ button{font-family:inherit;color:inherit}
 .qr li{font-size:.95rem;color:var(--tx);opacity:.88;margin-bottom:.45rem;line-height:1.45}
 
 /* ═══════════════ GAME HEADER ═══════════════ */
-.gh{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.45rem .75rem;padding-top:max(.45rem,env(safe-area-inset-top));background:var(--s1);border-bottom:var(--cbw) solid var(--bd);flex-shrink:0}
+.gh{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.45rem .75rem;padding-top:max(.45rem,env(safe-area-inset-top));background:var(--s1);border-bottom:var(--cbw) solid var(--bd);flex-shrink:0;position:sticky;top:0;z-index:10}
 .gh-t{font-family:var(--fd);font-weight:var(--fw);font-size:1.5rem;color:var(--ac);letter-spacing:.05em;white-space:nowrap}
 .nmb{font-family:var(--fb);font-size:.65rem;background:var(--red);color:#fff;border-radius:5px;padding:.15rem .4rem;letter-spacing:.05em;vertical-align:middle;font-weight:800}
 .ghb{display:flex;gap:.35rem}
@@ -104,7 +104,9 @@ button{font-family:inherit;color:inherit}
 .hb:active{transform:scale(.94)}
 
 /* ═══════════════ GAME GRID (portrait) ═══════════════ */
-.gbody{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:minmax(0,1fr);
+/* Override .pg overflow:hidden so the game page can scroll on mobile */
+#pg-game{overflow-y:auto!important;overflow-x:hidden!important}
+.gbody{display:grid;grid-template-columns:minmax(0,1fr);
   grid-template-rows:auto auto auto auto auto auto auto auto;
   grid-template-areas:"opp" "tbl" "yb" "yprops" "dal" "hand" "ab" "ab2"}
 
@@ -362,6 +364,7 @@ button{font-family:inherit;color:inherit}
 
 /* ═══════════════ LANDSCAPE (phone) ═══════════════ */
 @media (orientation:landscape){
+  #pg-game{overflow:hidden!important}
   .gbody{overflow:hidden;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
     grid-template-rows:auto auto minmax(0,1fr) auto auto auto;
     grid-template-areas:"opp yb" "opp dal" "opp hand" "tbl hand" "yprops ab" "yprops ab2"}
@@ -395,7 +398,7 @@ button{font-family:inherit;color:inherit}
   :root{--k:1.1}
 
   /* Game page fills screen with a proper table layout */
-  #pg-game{display:flex;flex-direction:column}
+  #pg-game{display:flex;flex-direction:column;overflow:hidden!important}
   .gbody{
     flex:1;min-height:0;overflow:hidden;
     display:grid;
@@ -473,11 +476,36 @@ button{font-family:inherit;color:inherit}
 /* Large tablets (iPad Pro, Galaxy Tab S series) */
 @media (min-width:1024px){
   :root{--k:1.2}
-  .gbody{grid-template-columns:220px 1fr 220px}
-}
-@media (min-width:1280px){
-  :root{--k:1.3}
   .gbody{grid-template-columns:240px 1fr 240px}
+  .opp-left-col .ob .pr,.opp-right-col .ob .pr{max-height:150px}
+}
+
+/* Desktop */
+@media (min-width:1280px){
+  :root{--k:1.25}
+  .gbody{grid-template-columns:280px 1fr 280px}
+  .opp-left-col .ob .pr,.opp-right-col .ob .pr{max-height:180px}
+  .opp-area{gap:.75rem;padding:.6rem 1rem}
+  .hand{padding:.75rem 1rem}
+  .tbl{padding:.5rem 1.2rem}
+}
+
+/* Wide desktop */
+@media (min-width:1600px){
+  :root{--k:1.35}
+  .gbody{
+    grid-template-columns:320px minmax(0,900px) 320px;
+    justify-content:center
+  }
+  .opp-left-col .ob .pr,.opp-right-col .ob .pr{max-height:200px}
+}
+
+/* Ultrawide — cap the centre column, keep side columns snug */
+@media (min-width:1920px){
+  :root{--k:1.4}
+  .gbody{
+    grid-template-columns:340px minmax(0,960px) 340px
+  }
 }
 </style>
 </head>
