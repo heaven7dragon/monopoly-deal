@@ -104,8 +104,10 @@ button{font-family:inherit;color:inherit}
 .hb:active{transform:scale(.94)}
 
 /* ═══════════════ GAME GRID (portrait) ═══════════════ */
-/* Override .pg overflow:hidden so the game page can scroll on mobile */
-#pg-game{overflow-y:auto!important;overflow-x:hidden!important}
+/* .gscroll is the real scroll container — body+.pg are position:fixed/overflow:hidden
+   so we can't scroll those; instead .gscroll fills #pg-game and scrolls inside it */
+#pg-game{overflow:hidden}
+.gscroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column}
 .gbody{display:grid;grid-template-columns:minmax(0,1fr);
   grid-template-rows:auto auto auto auto auto auto auto auto;
   grid-template-areas:"opp" "tbl" "yb" "yprops" "dal" "hand" "ab" "ab2"}
@@ -364,7 +366,7 @@ button{font-family:inherit;color:inherit}
 
 /* ═══════════════ LANDSCAPE (phone) ═══════════════ */
 @media (orientation:landscape){
-  #pg-game{overflow:hidden!important}
+  .gscroll{overflow:hidden;flex-direction:column}
   .gbody{overflow:hidden;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
     grid-template-rows:auto auto minmax(0,1fr) auto auto auto;
     grid-template-areas:"opp yb" "opp dal" "opp hand" "tbl hand" "yprops ab" "yprops ab2"}
@@ -398,7 +400,7 @@ button{font-family:inherit;color:inherit}
   :root{--k:1.1}
 
   /* Game page fills screen with a proper table layout */
-  #pg-game{display:flex;flex-direction:column;overflow:hidden!important}
+  .gscroll{overflow:hidden;flex-direction:column}
   .gbody{
     flex:1;min-height:0;overflow:hidden;
     display:grid;
@@ -577,6 +579,7 @@ button{font-family:inherit;color:inherit}
 
 <!-- GAME -->
 <div id="pg-game" class="pg">
+  <div class="gscroll">
   <div class="gh">
     <span class="gh-t">DEAL <span id="nm-badge" class="nmb" style="display:none">NO MERCY</span></span>
     <div class="ghb">
@@ -632,6 +635,7 @@ button{font-family:inherit;color:inherit}
       <button class="abw" id="abmw">&#127183; Move Wildcard (free)</button>
     </div>
   </div>
+  </div><!-- /gscroll -->
 </div>
 
 <!-- SETTINGS -->
