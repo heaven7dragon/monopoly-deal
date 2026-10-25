@@ -1642,8 +1642,14 @@ function doPlay(actor, card, cb) {
     else    { var wc = aiBestCol(actor, card); addProp(actor, card, wc); toast(actor.name + " placed wildcard as " + COLS[wc].name); renderAll(); checkWin(actor); cb(); }
     return;
   }
-  if (card.t === "action") { doAction(actor, card, im, cb); return; }
-  if (card.t === "rent")   { doRent(actor, card, im, cb); return; }
+  // Played action/rent cards go to the discard pile once resolved (unless the
+  // player cancelled and the card went back to their hand).
+  var toDisc = function() {
+    if (actor.hand.indexOf(card) === -1 && G.disc.indexOf(card) === -1) G.disc.push(card);
+    cb();
+  };
+  if (card.t === "action") { doAction(actor, card, im, toDisc); return; }
+  if (card.t === "rent")   { doRent(actor, card, im, toDisc); return; }
   cb();
 }
 
