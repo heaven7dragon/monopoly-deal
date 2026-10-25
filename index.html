@@ -786,13 +786,8 @@ button{font-family:inherit;color:inherit}
     <p id="dp-msg" style="margin:.4rem 0 .8rem;font-size:.95rem"></p>
     <div id="dp-tally" style="background:var(--s2);border-radius:10px;padding:.6rem .9rem;margin-bottom:.8rem;font-weight:700;font-size:1rem"></div>
     <div id="dp-bank-sect" style="margin-bottom:.8rem">
-      <div style="font-size:.85rem;opacity:.7;margin-bottom:.3rem">&#128176; From bank</div>
-      <div style="display:flex;align-items:center;gap:.6rem">
-        <button class="btn-o" id="dp-bank-minus" style="width:2.2rem;height:2.2rem;padding:0;font-size:1.1rem">&#8722;</button>
-        <span id="dp-bank-val" style="font-size:1.2rem;font-weight:700;min-width:3rem;text-align:center"></span>
-        <button class="btn-g" id="dp-bank-plus" style="width:2.2rem;height:2.2rem;padding:0;font-size:1.1rem">&#43;</button>
-        <span style="font-size:.82rem;opacity:.65">(max <span id="dp-bank-max"></span>)</span>
-      </div>
+      <div style="font-size:.85rem;opacity:.7;margin-bottom:.4rem">&#128176; Bank cards (tap to offer) &#8212; no change given</div>
+      <div id="dp-bank-list" style="display:flex;flex-wrap:wrap;gap:.45rem"></div>
     </div>
     <div id="dp-props-sect">
       <div style="font-size:.85rem;opacity:.7;margin-bottom:.4rem">&#127968; Properties (tap to offer)</div>
@@ -992,7 +987,7 @@ function renderStats() {
   ge("st-np").textContent     = s.nmPlayed;
 }
 
-function mkP(name, human) { return {name:name,human:human,hand:[],bank:0,props:{},houses:{},hotels:{},debtTo:null}; }
+function mkP(name, human) { return {name:name,human:human,hand:[],bank:0,bcards:[],props:{},houses:{},hotels:{},debtTo:null}; }
 // debtTo = player object this player owes a chip to (null = no chip)
 
 // ── NO MERCY DECK (120 cards) ──────────────────────────────────────────────
@@ -1130,9 +1125,34 @@ function addProp(p, card, col) {
   p.props[col].push(c);
 }
 
+// Bank holds real cards (p.bcards); p.bank is the running total of their values.
+function bankPut(p, card) { if (!p.bcards) p.bcards = []; p.bcards.push(card); p.bank += (card.v || 0); }
+function bankTake(p, card) {
+  var b = p.bcards || [];
+  for (var i = 0; i < b.length; i++) if (b[i] === card) { b.splice(i, 1); p.bank -= (card.v || 0); return true; }
+  return false;
+}
+// Cheapest set of bank cards covering amt (no change is given); all cards if they can't cover it.
+function bestBankSubset(cards, amt) {
+  var reach = {0: []}, sums = [0], i, a, s;
+  for (i = 0; i < cards.length; i++) {
+    var snap = sums.slice(), v = cards[i].v || 0;
+    for (a = 0; a < snap.length; a++) {
+      s = snap[a] + v;
+      if (!reach.hasOwnProperty(s)) { reach[s] = reach[snap[a]].concat(i); sums.push(s); }
+    }
+  }
+  sums.sort(function(x, y) { return x - y; });
+  for (i = 0; i < sums.length; i++) if (sums[i] >= amt) return reach[sums[i]];
+  var all = []; for (i = 0; i < cards.length; i++) all.push(i);
+  return all;
+}
+
 function payUp(payer, payee, amt) {
   var rem = amt, paid = 0;
-  var bp = Math.min(rem, payer.bank); payer.bank -= bp; payee.bank += bp; paid += bp; rem -= bp;
+  var bc = payer.bcards || [], idxs = bestBankSubset(bc, rem), chosen = [], ci;
+  for (ci = 0; ci < idxs.length; ci++) chosen.push(bc[idxs[ci]]);
+  for (ci = 0; ci < chosen.length; ci++) { bankTake(payer, chosen[ci]); bankPut(payee, chosen[ci]); paid += chosen[ci].v; rem -= chosen[ci].v; }
   if (rem > 0) {
     var k = Object.keys(payer.props);
     for (var i = 0; i < k.length && rem > 0; i++) {
@@ -1158,55 +1178,50 @@ function payUp(payer, payee, amt) {
   return paid;
 }
 
-// Manual debt payment picker for human player
+// Manual debt payment picker for human player: tap real bank cards / properties. No change is given.
 function payUpManual(payer, payee, amt, cb) {
   var ov = ge("dpov");
-  var bankAmt = 0; // how much the player is offering from bank
-  var selProps = []; // {col, idx, card, val} property cards offered
+  var selBank = []; // indexes into payer.bcards
+  var selProps = []; // {col, idx, card, val}
+  var forceAll = false; // can't cover the debt: everything is handed over automatically
 
-  function totalOffered() {
-    var t = bankAmt;
-    for (var i = 0; i < selProps.length; i++) t += selProps[i].val;
-    return t;
+  // Total the payer owns; if it can't cover the debt, select everything up front
+  var assets = payer.bank, pcols = Object.keys(payer.props), pc0, pj0;
+  for (pc0 = 0; pc0 < pcols.length; pc0++) for (pj0 = 0; pj0 < (payer.props[pcols[pc0]] || []).length; pj0++) assets += (payer.props[pcols[pc0]][pj0].v || 1);
+  if (assets <= amt) {
+    forceAll = true;
+    for (pj0 = 0; pj0 < (payer.bcards || []).length; pj0++) selBank.push(pj0);
+    for (pc0 = 0; pc0 < pcols.length; pc0++) for (pj0 = 0; pj0 < (payer.props[pcols[pc0]] || []).length; pj0++) { var pcd = payer.props[pcols[pc0]][pj0]; selProps.push({col:pcols[pc0], idx:pj0, card:pcd, val:pcd.v || 1}); }
   }
 
-  function allGone() {
-    // player has nothing more to offer
-    var hasBank = payer.bank > 0;
-    if (hasBank) return false;
-    var cols = Object.keys(payer.props);
-    for (var c = 0; c < cols.length; c++) if (payer.props[cols[c]] && payer.props[cols[c]].length) return false;
-    return true;
-  }
+  function sumBank() { var t = 0; for (var i = 0; i < selBank.length; i++) t += (payer.bcards[selBank[i]].v || 0); return t; }
+  function sumProps() { var t = 0; for (var i = 0; i < selProps.length; i++) t += selProps[i].val; return t; }
 
   function updateUI() {
-    var offered = totalOffered();
-    var owes = amt;
-    var enough = offered >= owes;
-    var bankMax = Math.min(payer.bank, owes - totalOfferedFromProps());
-    if (bankMax < 0) bankMax = 0;
-
+    var offered = sumBank() + sumProps(), owes = amt, enough = offered >= owes;
     ge("dp-tally").innerHTML =
       "Offered: " + fmtAmt(offered) + " &nbsp;|&nbsp; Owe: " + fmtAmt(owes) +
       (enough ? ' &nbsp;<span style="color:#27ae60">&#10003; Enough!</span>' : ' &nbsp;<span style="color:#e74c3c">Still need: ' + fmtAmt(owes - offered) + '</span>');
 
-    ge("dp-bank-val").innerHTML = fmtAmt(bankAmt);
-    ge("dp-bank-max").innerHTML = fmtAmt(payer.bank);
-    ge("dp-bank-minus").disabled = (bankAmt <= 0);
-    ge("dp-bank-plus").disabled = (bankAmt >= payer.bank);
+    // bank cards
+    var bc = payer.bcards || [], bh = "", bi;
+    for (bi = 0; bi < bc.length; bi++) {
+      var bSel = selBank.indexOf(bi) >= 0;
+      bh += '<button class="dp-prop-btn' + (bSel ? " dp-sel" : "") + '" data-b="' + bi + '" style="background:#3b82f622;border:2px solid ' + (bSel ? "#27ae60" : "#3b82f6") + ';border-radius:8px;padding:.3rem .55rem;font-size:.8rem;cursor:pointer;color:var(--tx)">' +
+        (bSel ? "&#10003; " : "") + bc[bi].name + '<br><span style="font-size:.72rem;opacity:.75">' + fmtAmt(bc[bi].v || 0) + '</span></button>';
+    }
+    ge("dp-bank-list").innerHTML = bh;
+    ge("dp-bank-sect").style.display = bc.length ? "" : "none";
 
-    // render properties
-    var propHtml = "";
-    var cols = Object.keys(payer.props);
-    var hasProp = false;
-    for (var c = 0; c < cols.length; c++) {
+    // properties
+    var propHtml = "", cols = Object.keys(payer.props), hasProp = false, c, j, s;
+    for (c = 0; c < cols.length; c++) {
       var col = cols[c], cards = payer.props[col];
       if (!cards || !cards.length) continue;
-      for (var j = 0; j < cards.length; j++) {
+      for (j = 0; j < cards.length; j++) {
         hasProp = true;
-        var card = cards[j];
-        var isSel = false;
-        for (var s = 0; s < selProps.length; s++) if (selProps[s].col === col && selProps[s].idx === j) { isSel = true; break; }
+        var card = cards[j], isSel = false;
+        for (s = 0; s < selProps.length; s++) if (selProps[s].col === col && selProps[s].idx === j) { isSel = true; break; }
         propHtml += '<button class="dp-prop-btn' + (isSel ? " dp-sel" : "") + '" data-col="' + col + '" data-j="' + j + '" style="background:' + (COLS[col] ? COLS[col].hex : "#888") + '22;border:2px solid ' + (isSel ? "#27ae60" : (COLS[col] ? COLS[col].hex : "#888")) + ';border-radius:8px;padding:.3rem .55rem;font-size:.8rem;cursor:pointer;color:var(--tx)">' +
           (isSel ? "&#10003; " : "") + card.name + '<br><span style="font-size:.72rem;opacity:.75">' + fmtAmt(card.v || 1) + '</span></button>';
       }
@@ -1214,80 +1229,77 @@ function payUpManual(payer, payee, amt, cb) {
     ge("dp-props-list").innerHTML = hasProp ? propHtml : '<span style="opacity:.5;font-size:.85rem">No properties</span>';
     ge("dp-props-sect").style.display = hasProp ? "" : "none";
 
-    // Can confirm if: offered enough, OR have nothing left to offer, OR selected everything available
-    var allPropsSelected = true;
-    var cols2 = Object.keys(payer.props);
-    for (var cp = 0; cp < cols2.length; cp++) {
-      var colCards = payer.props[cols2[cp]];
-      if (!colCards || !colCards.length) continue;
-      for (var jp = 0; jp < colCards.length; jp++) {
+    // Can confirm if enough is offered, OR everything the player owns is offered
+    var allPropsSelected = true, cp, jp, sp2;
+    for (cp = 0; cp < cols.length && allPropsSelected; cp++) {
+      var colCards = payer.props[cols[cp]];
+      if (!colCards) continue;
+      for (jp = 0; jp < colCards.length; jp++) {
         var found2 = false;
-        for (var sp2 = 0; sp2 < selProps.length; sp2++) if (selProps[sp2].col === cols2[cp] && selProps[sp2].idx === jp) { found2 = true; break; }
+        for (sp2 = 0; sp2 < selProps.length; sp2++) if (selProps[sp2].col === cols[cp] && selProps[sp2].idx === jp) { found2 = true; break; }
         if (!found2) { allPropsSelected = false; break; }
       }
-      if (!allPropsSelected) break;
     }
-    var bankDrained = (bankAmt >= payer.bank);
-    var canConfirm = enough || (bankDrained && allPropsSelected);
+    var allBankSelected = (selBank.length >= bc.length);
+    var canConfirm = forceAll || enough || (allBankSelected && allPropsSelected);
     ge("dp-confirm").disabled = !canConfirm;
 
     var note = "";
-    if (!enough && canConfirm) note = "You can't cover the full debt — giving everything you have.";
+    if (forceAll && !enough) note = "You can't cover this debt \u2014 you give everything you have.";
+    else if (!enough && canConfirm) note = "You can't cover the full debt \u2014 giving everything you have.";
+    else if (offered > owes) note = "No change is given \u2014 you're overpaying by " + fmtAmt(offered - owes) + ".";
     ge("dp-note").textContent = note;
 
-    // re-attach prop listeners
-    var btns = ge("dp-props-list").querySelectorAll(".dp-prop-btn");
-    for (var bi = 0; bi < btns.length; bi++) {
+    var bbtns = ge("dp-bank-list").querySelectorAll(".dp-prop-btn");
+    for (var bk = 0; bk < bbtns.length; bk++) {
       (function(btn) {
         btn.addEventListener("click", function() {
-          var col2 = btn.getAttribute("data-col"), j2 = parseInt(btn.getAttribute("data-j"), 10);
-          var found = -1;
-          for (var si = 0; si < selProps.length; si++) if (selProps[si].col === col2 && selProps[si].idx === j2) { found = si; break; }
-          if (found >= 0) { selProps.splice(found, 1); }
-          else {
-            var card2 = payer.props[col2][j2];
-            selProps.push({col:col2, idx:j2, card:card2, val: card2.v || 1});
-          }
+          if (forceAll) return;
+          var idx = parseInt(btn.getAttribute("data-b"), 10), at = selBank.indexOf(idx);
+          if (at >= 0) selBank.splice(at, 1); else selBank.push(idx);
           updateUI();
         });
-      })(btns[bi]);
+      })(bbtns[bk]);
+    }
+    var btns = ge("dp-props-list").querySelectorAll(".dp-prop-btn");
+    for (var pi = 0; pi < btns.length; pi++) {
+      (function(btn) {
+        btn.addEventListener("click", function() {
+          if (forceAll) return;
+          var col2 = btn.getAttribute("data-col"), j2 = parseInt(btn.getAttribute("data-j"), 10), found = -1;
+          for (var si = 0; si < selProps.length; si++) if (selProps[si].col === col2 && selProps[si].idx === j2) { found = si; break; }
+          if (found >= 0) selProps.splice(found, 1);
+          else { var card2 = payer.props[col2][j2]; selProps.push({col:col2, idx:j2, card:card2, val: card2.v || 1}); }
+          updateUI();
+        });
+      })(btns[pi]);
     }
   }
 
-  function totalOfferedFromProps() {
-    var t = 0; for (var i = 0; i < selProps.length; i++) t += selProps[i].val; return t;
-  }
-
   ge("dp-msg").innerHTML = payee.name + " demands " + fmtAmt(amt) + " &nbsp;|&nbsp; Your bank: " + fmtAmt(payer.bank);
-  ge("dp-bank-sect").style.display = (payer.bank > 0) ? "" : "none";
-
   ov.classList.add("on");
   updateUI();
 
-  ge("dp-bank-minus").onclick = function() { if (bankAmt > 0) { bankAmt--; updateUI(); } };
-  ge("dp-bank-plus").onclick  = function() { if (bankAmt < payer.bank) { bankAmt++; updateUI(); } };
-
   ge("dp-confirm").onclick = function() {
     ov.classList.remove("on");
-    var paid = 0;
-    // Pay from bank
-    payer.bank -= bankAmt; payee.bank += bankAmt; paid += bankAmt;
-    // Pay properties (work backwards through indices to keep order safe)
-    selProps.sort(function(a,b){return b.idx - a.idx;});
-    for (var i = 0; i < selProps.length; i++) {
-      var sp = selProps[i];
-      var propArr = payer.props[sp.col];
+    var paid = 0, i;
+    // Bank cards move into the payee's bank
+    var moving = [];
+    for (i = 0; i < selBank.length; i++) moving.push(payer.bcards[selBank[i]]);
+    for (i = 0; i < moving.length; i++) { bankTake(payer, moving[i]); bankPut(payee, moving[i]); paid += (moving[i].v || 0); }
+    // Properties (work backwards through indices to keep order safe)
+    selProps.sort(function(a, b) { return b.idx - a.idx; });
+    for (i = 0; i < selProps.length; i++) {
+      var sp = selProps[i], propArr = payer.props[sp.col];
       if (!propArr) continue;
       var removed = propArr.splice(sp.idx, 1)[0];
       if (!propArr.length) { delete payer.props[sp.col]; delete payer.houses[sp.col]; delete payer.hotels[sp.col]; }
       else if (!setDone(payer, sp.col)) { delete payer.houses[sp.col]; delete payer.hotels[sp.col]; }
-      // Transfer property card to payee's properties (not as cash)
       if (!payee.props[sp.col]) payee.props[sp.col] = [];
       payee.props[sp.col].push(removed);
       paid += sp.val;
     }
-    // reset state
-    bankAmt = 0; selProps = [];
+    selBank = []; selProps = [];
     cb(paid);
   };
 }
@@ -1582,7 +1594,7 @@ function bankSel() {
   var k = [];
   for (var i = 0; i < me().hand.length; i++) if (i !== G.sel) k.push(me().hand[i]);
   me().hand = k; G.sel = null; G.plays--;
-  me().bank += card.v; G.disc.push(card);
+  bankPut(me(), card);
   toast("Banked " + card.name + " &#8212; " + fmtAmt(card.v) + " added"); renderAll(); checkWin(me());
 }
 
@@ -1635,7 +1647,7 @@ var _jy = null, _jn = null;
 
 function doPlay(actor, card, cb) {
   var im = (actor === me());
-  if (card.t === "money")  { actor.bank += card.v; G.disc.push(card); renderAll(); checkWin(actor); cb(); return; }
+  if (card.t === "money")  { bankPut(actor, card); renderAll(); checkWin(actor); cb(); return; }
   if (card.t === "prop")   { addProp(actor, card, card.col); if (!im) toast(actor.name + " placed " + card.name + (setDone(actor, card.col) ? " &#11088; SET!" : "")); renderAll(); checkWin(actor); cb(); return; }
   if (card.t === "wild")   {
     if (im) { pickColor(card, function(col) { addProp(me(), card, col); renderAll(); checkWin(me()); cb(); }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); }); }
@@ -1867,14 +1879,14 @@ function doAction(actor, card, im, cb) {
       // Can target anyone; no restriction on target's bank being empty (only YOUR bank must not be empty)
       pickTarget(others(me()), "Unfair Trade &#8212; swap your bank with?", function(target) {
         jsnAI(target, "Unfair Trade!",
-          function() { var tmp = me().bank; me().bank = target.bank; target.bank = tmp; toast("Unfair Trade! Banks swapped with " + target.name + "!"); renderAll(); cb(); },
+          function() { var tmp = me().bank; me().bank = target.bank; target.bank = tmp; var tbc = me().bcards; me().bcards = target.bcards; target.bcards = tbc; toast("Unfair Trade! Banks swapped with " + target.name + "!"); renderAll(); cb(); },
           function() { toast(target.name + " blocked Unfair Trade!"); cb(); });
       }, function() { G.plays++; me().hand.push(card); renderAll(); cb(); });
     } else {
       if (!actor.bank) { cb(); return; }
       if (!me().bank) { cb(); return; } // rulebook: cannot play if target's bank is also empty (debatable — AI skips)
       jsnMe(actor.name + " played Unfair Trade &#8212; they want to swap banks with you!",
-        function() { var tmp = actor.bank; actor.bank = me().bank; me().bank = tmp; toast(actor.name + " swapped banks with you!"); renderAll(); cb(); },
+        function() { var tmp = actor.bank; actor.bank = me().bank; me().bank = tmp; var tbc = actor.bcards; actor.bcards = me().bcards; me().bcards = tbc; toast(actor.name + " swapped banks with you!"); renderAll(); cb(); },
         function() { toast("You blocked Unfair Trade!"); cb(); });
     }
     return;
