@@ -110,13 +110,15 @@ button{font-family:inherit;color:inherit}
   flex:1;min-height:0;
   display:grid;
   grid-template-columns:minmax(0,1fr);
-  grid-template-rows:auto auto auto auto auto minmax(0,1fr) auto auto;
+  grid-template-rows:auto auto auto minmax(0,1fr) auto auto auto auto;
   grid-template-areas:"opp" "tbl" "yb" "yprops" "dal" "hand" "ab" "ab2"
 }
+.yprops{overflow-y:auto;overflow-x:hidden;min-height:0;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.hand,.ab{flex-shrink:0}
 
 /* opponents */
 .opp-left-col,.opp-right-col{display:none}
-.opp-area{grid-area:opp;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;max-height:36dvh;padding:.5rem .75rem;display:flex;flex-direction:column;gap:.5rem;flex-shrink:0}
+.opp-area{grid-area:opp;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;max-height:28dvh;padding:.5rem .75rem;display:flex;flex-direction:column;gap:.5rem;flex-shrink:0}
 .ob{background:var(--s1);border:var(--cbw) solid var(--bd);border-radius:var(--rad);padding:.5rem .65rem;flex-shrink:0}
 .ob.turn{border-color:var(--ac);box-shadow:0 0 0 2px var(--ac)}
 .oh{display:flex;align-items:center;gap:.45rem;margin-bottom:.35rem;flex-wrap:wrap}
